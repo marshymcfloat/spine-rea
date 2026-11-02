@@ -38,6 +38,9 @@ importers:
       '@studio/runtime-pixi':
         specifier: workspace:*
         version: link:../../packages/runtime-pixi
+      '@studio/test-fixtures':
+        specifier: workspace:*
+        version: link:../../packages/test-fixtures
       '@types/react':
         specifier: 19.3.0
         version: 19.3.0
@@ -68,6 +71,9 @@ importers:
       '@studio/runtime-pixi':
         specifier: workspace:*
         version: link:../../packages/runtime-pixi
+      '@studio/test-fixtures':
+        specifier: workspace:*
+        version: link:../../packages/test-fixtures
       pixi.js:
         specifier: 8.22.0
         version: 8.22.0
@@ -86,7 +92,17 @@ importers:
         version: link:../test-fixtures
 
   packages/runtime-pixi:
+    dependencies:
+      '@studio/animation-core':
+        specifier: workspace:*
+        version: link:../animation-core
+      '@studio/schema':
+        specifier: workspace:*
+        version: link:../schema
     devDependencies:
+      '@studio/test-fixtures':
+        specifier: workspace:*
+        version: link:../test-fixtures
       pixi.js:
         specifier: 8.22.0
         version: 8.22.0
