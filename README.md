@@ -4,6 +4,9 @@ An offline-first Windows motion editor for symbols, raster/vector artwork, chara
 
 The merged foundation implements an Electron/React workspace, PixiJS reference canvas, view controls, restricted read-only bridge, standalone browser demo, validated version 1 data contracts, original priest fixtures and shared bone/clip playback. Existing CPU weighted-mesh geometry and fixture previews are preserved in [SPI-9 / draft PR #5](https://github.com/marshymcfloat/slot-animation-studio/pull/5); its performance acceptance remains open in Linear. Unified authored editing, asset import, persistence and export compilation remain planned.
 
+
+This SPI-9 branch contains the preserved CPU weighted geometry and priest previews with clip selection, play/pause, stop, seeking, speed and crossfades. The additional preview/profiling commands below apply to this branch. The proof remains unmerged and incomplete; its performance evidence and resumption action are recorded in Linear.
+
 ## Start here
 
 - [Agent instructions](AGENTS.md)

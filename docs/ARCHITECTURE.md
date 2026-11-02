@@ -311,3 +311,27 @@ until captured on the applicable rendered workload.
   flat rig draw order and current security/performance rules.
 - Manual nondestructive PNG/JPG/SVG editing and masks precede optional vector tracing
   and AI mask experiments. Exported games do not require those preparation services.
+
+### Preserved SPI-9 geometry and fixture-preview proof: 2026-11-03
+
+This describes the implementation retained in draft PR #5, not a completed
+performance gate or P2 authoring UI.
+
+- Keep the version 1 data format unchanged. Compile inverse setup matrices and
+  bone-local weighted points at revision time. Write shared rig-space region quads
+  and weighted vertices into explicit consumer-owned Float32 buffers; stage/check
+  all positions before committing. Reject singular/unrepresentable inverse binds
+  and Float32 overflow; retain mirrored/nested transforms and animated zero scale.
+- Freeze geometry identity, UVs, topology and draw order for that revision. Rebuild
+  after authored setup/topology/order changes. Existing pose/player APIs continue
+  returning independent snapshots; geometry reuse is an explicit separate contract.
+- Retain Pixi meshes in flat authored order and upload positions/opacity. Hosts
+  load original fixture textures and own disposal; no Pixi-side skinning or bone
+  parenting is allowed for evaluated rig-space geometry.
+- Share one preview host clock/lifecycle between React and the standalone demo.
+  Pause advancement while hidden and start a fresh timestamp on visibility return;
+  deliberate inactive time is excluded rather than clamping an active-frame delta.
+  Preserve persisted-page restoration and clean partial asynchronous initialization.
+- Profile the original 12-bone priest and a bounded 65×65 four-influence robe. The
+  denser fixture is diagnostic data, not a new authored production capability.
+  Keep traces/results in Linear/PR evidence; lower-spec hardware remains a release gate.
