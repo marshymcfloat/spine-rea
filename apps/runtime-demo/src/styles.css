@@ -13,4 +13,11 @@ h1 { margin: 0; font-size: 17px; font-weight: 500; }
 .demo-message { position: absolute; top: 50%; left: 50%; max-width: 420px; margin: 0; transform: translate(-50%, -50%); color: #c4c7cf; font-size: 13px; line-height: 1.7; text-align: center; overflow-wrap: anywhere; }
 .demo-footer { min-height: 36px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 28px; border-top: 1px solid #303238; color: #9b9faa; font-size: 10px; }
 #status { color: #d3a46e; }
+.transport-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 28px; border-top: 1px solid #303238; background: #1d1f23; font-size: 11px; }
+.transport-controls label { display: flex; align-items: center; gap: 7px; color: #a1a5af; }
+.transport-controls button, .transport-controls select { min-height: 30px; padding: 4px 8px; color: #d8d9dd; background: #272a30; border: 1px solid #454850; border-radius: 3px; font: inherit; }
+.transport-controls input[type="range"] { flex: 1; min-width: 80px; accent-color: #d3a46e; }
+.transport-controls output { min-width: 43px; font: 10px "Cascadia Code", Consolas, monospace; }
+.transport-controls button:disabled, .transport-controls select:disabled { opacity: .4; }
+.transport-controls :focus-visible { outline: 2px solid #d3a46e; outline-offset: 2px; }
 @media (max-width: 600px) { .demo-header, .demo-footer { padding-left: 18px; padding-right: 18px; } .demo-badge, .demo-footer > span:last-child { display: none; } }

@@ -15,16 +15,29 @@
           <p class="demo-label">Slot Animation Studio</p>
           <h1>Runtime Demo</h1>
         </div>
-        <span class="demo-badge">Standalone preview</span>
+        <span class="demo-badge">Original priest fixture</span>
       </header>
-      <section class="demo-viewport" aria-label="Reference artboard viewport">
+      <section class="demo-viewport" aria-label="Priest animation viewport">
         <div id="viewport"></div>
-        <div class="demo-guide-label">1920 × 1080 / Reference artboard</div>
+        <div class="demo-guide-label">320 × 480 / Weighted priest preview</div>
         <p class="demo-message" id="message">Preparing canvas…</p>
       </section>
+      <div class="transport-controls" role="group" aria-label="Animation preview controls">
+        <label class="clip-control">Clip <select id="clip" aria-label="Animation clip" disabled></select></label>
+        <button id="play" type="button" disabled>Play</button>
+        <button id="stop" type="button" disabled>Stop</button>
+        <input id="seek" type="range" aria-label="Seek animation" min="0" max="2" step="0.001" value="0" disabled />
+        <output id="time" data-testid="playback-time" aria-label="Playback time">0.00 s</output>
+        <label>Speed <select id="speed" aria-label="Playback speed" disabled>
+          <option value="0">0×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option>
+        </select></label>
+        <label>Fade <select id="fade" aria-label="Crossfade duration" disabled>
+          <option value="0">0 s</option><option value="0.2" selected>0.2 s</option><option value="0.5">0.5 s</option><option value="1">1 s</option><option value="2">2 s</option>
+        </select></label>
+      </div>
       <footer class="demo-footer">
         <span id="status" role="status">Preparing canvas</span>
-        <span>Shared reference guides · No project loaded</span>
+        <span>Shared weighted geometry · Preview only</span>
       </footer>
     </main>
     <script type="module" src="/src/main.ts"></script>

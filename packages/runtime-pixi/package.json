@@ -5,6 +5,10 @@
   "type": "module",
   "exports": { ".": "./src/index.ts" },
   "sideEffects": ["./src/index.ts"],
+  "dependencies": {
+    "@studio/animation-core": "workspace:*",
+    "@studio/schema": "workspace:*"
+  },
   "peerDependencies": { "pixi.js": "^8.22.0" },
   "devDependencies": { "pixi.js": "8.22.0" }
 }

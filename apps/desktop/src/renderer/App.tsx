@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
+import type { RigPreview } from '@studio/runtime-pixi';
 import type { AppInfo } from '../shared/bridge';
 import { ViewControls } from './components/ViewControls';
 import { Viewport, type CanvasState } from './components/Viewport';
+import { TransportControls } from './components/TransportControls';
 
 export function App() {
   const [zoom, setZoom] = useState(1);
   const [showGrid, setShowGrid] = useState(true);
+  const [preview, setPreview] = useState<RigPreview | null>(null);
   const [canvasState, setCanvasState] = useState<CanvasState>({ kind: 'loading' });
   const [appInfo, setAppInfo] = useState<AppInfo | null>(null);
   const [bridgeUnavailable, setBridgeUnavailable] = useState(false);
@@ -36,24 +39,24 @@ export function App() {
           </span>
           <span className="app-name">Slot Animation Studio</span>
           <span className="header-divider" aria-hidden="true" />
-          <span className="project-name">Untitled workspace</span>
+          <span className="project-name">Priest fixture preview</span>
         </div>
         <span className="local-label">Local workspace</span>
       </header>
 
       <main className="workspace-layout">
         <aside className="side-panel project-panel" aria-label="Project">
-          <div className="panel-heading"><h2>Project</h2><span className="panel-count">0</span></div>
+          <div className="panel-heading"><h2>Fixture</h2><span className="panel-count">9</span></div>
           <div className="project-empty">
             <svg className="empty-project-icon" viewBox="0 0 32 32" fill="none" aria-hidden="true">
               <path d="M5.5 9.5h8l3-4h10v21h-21zM5.5 12.5h21" />
             </svg>
-            <p>No project loaded</p>
-            <span>The workspace is empty.</span>
+            <p>Geometric priest</p>
+            <span>9 original layers · 12 bones · 5 clips</span>
           </div>
           <div className="panel-note">
-            <span className="eyebrow">Workspace preview</span>
-            <p>View the reference artboard with zoom and guide controls.</p>
+            <span className="eyebrow">Animation preview</span>
+            <p>Play the supplied clips and inspect their weighted robe. Authoring and project saving are not available yet.</p>
           </div>
         </aside>
 
@@ -61,7 +64,7 @@ export function App() {
           <div className="workspace-toolbar">
             <div className="workspace-title">
               <h1 id="workspace-heading">Workspace</h1>
-              <span>Reference artboard</span>
+              <span>Priest preview</span>
             </div>
             <ViewControls
               zoom={zoom}
@@ -73,8 +76,8 @@ export function App() {
           </div>
 
           <div className="viewport-area" aria-busy={canvasState.kind === 'loading'}>
-            <Viewport zoom={zoom} showGrid={showGrid} onStateChange={setCanvasState} />
-            <div className="viewport-label" aria-hidden="true">1920 × 1080 <span>/</span> Reference</div>
+            <Viewport zoom={zoom} showGrid={showGrid} onStateChange={setCanvasState} onPreviewReady={setPreview} />
+            <div className="viewport-label" aria-hidden="true">320 × 480 <span>/</span> Fixture</div>
             {canvasState.kind === 'loading' && (
               <div className="canvas-message"><p>Preparing canvas…</p></div>
             )}
@@ -84,24 +87,25 @@ export function App() {
                 <span>{canvasState.message}</span>
               </div>
             )}
-            {isReady && <div className="empty-canvas-label">No project loaded</div>}
+            {isReady && <div className="empty-canvas-label">Weighted robe · Original fixture</div>}
             <div className="viewport-footnote" aria-hidden="true">X → <span>Y ↓</span></div>
           </div>
 
+          <TransportControls preview={preview} />
           <div className="workspace-caption">
-            <span>Reference view</span>
+            <span>Preview controls</span>
             <span>100% = fit to window</span>
           </div>
         </section>
 
         <aside className="side-panel view-panel" aria-label="View details">
-          <div className="panel-heading"><h2>View</h2><span className="panel-tag">Reference</span></div>
+          <div className="panel-heading"><h2>View</h2><span className="panel-tag">Fixture</span></div>
           <section className="inspector-section" aria-labelledby="artboard-heading">
             <h3 id="artboard-heading">Artboard</h3>
             <dl className="view-properties">
-              <div><dt>Width</dt><dd>1920 <span>px</span></dd></div>
-              <div><dt>Height</dt><dd>1080 <span>px</span></dd></div>
-              <div><dt>Aspect ratio</dt><dd>16 : 9</dd></div>
+              <div><dt>Width</dt><dd>320 <span>px</span></dd></div>
+              <div><dt>Height</dt><dd>480 <span>px</span></dd></div>
+              <div><dt>Aspect ratio</dt><dd>2 : 3</dd></div>
             </dl>
           </section>
           <section className="inspector-section" aria-labelledby="guides-heading">
@@ -121,7 +125,7 @@ export function App() {
           <span className={`status-dot ${isReady ? 'is-ready' : ''}`} aria-hidden="true" />
           {canvasState.kind === 'ready' ? 'Canvas ready' : canvasState.kind === 'error' ? 'Canvas unavailable' : 'Preparing canvas'}
         </div>
-        <span className="status-project">No project loaded</span>
+        <span className="status-project">Fixture preview</span>
         <span className="app-version">
           {appInfo ? `v${appInfo.version}` : bridgeUnavailable ? 'App details unavailable' : 'Reading app details…'}
         </span>

@@ -6,32 +6,41 @@ const GRID_SPACING = 120;
 
 export interface ViewportGuidesOptions {
   showGrid?: boolean;
+  width?: number;
+  height?: number;
 }
 
 export function createViewportGuides(options: ViewportGuidesOptions = {}): Container {
+  const width = options.width ?? ARTBOARD_WIDTH;
+  const height = options.height ?? ARTBOARD_HEIGHT;
+  if (![width, height].every((value) => Number.isFinite(value) && value > 0)) throw new RangeError('Guide dimensions must be positive and finite.');
+  const columns = options.width === undefined ? Math.min(64, Math.ceil(width / GRID_SPACING)) : 8;
+  const rows = options.height === undefined ? Math.min(64, Math.ceil(height / GRID_SPACING)) : 8;
   const guides = new Container({ label: 'viewport-guides' });
   guides.eventMode = 'none';
 
   const artboard = new Graphics()
-    .rect(0, 0, ARTBOARD_WIDTH, ARTBOARD_HEIGHT)
+    .rect(0, 0, width, height)
     .fill(0x1a1c20)
     .stroke({ color: 0x55565c, width: 1, pixelLine: true });
 
   const grid = new Graphics({ label: GRID_LABEL });
-  for (let x = GRID_SPACING; x < ARTBOARD_WIDTH; x += GRID_SPACING) {
-    grid.moveTo(x, 0).lineTo(x, ARTBOARD_HEIGHT);
+  for (let column = 1; column < columns; column++) {
+    const x = column * width / columns;
+    grid.moveTo(x, 0).lineTo(x, height);
   }
-  for (let y = GRID_SPACING; y < ARTBOARD_HEIGHT; y += GRID_SPACING) {
-    grid.moveTo(0, y).lineTo(ARTBOARD_WIDTH, y);
+  for (let row = 1; row < rows; row++) {
+    const y = row * height / rows;
+    grid.moveTo(0, y).lineTo(width, y);
   }
   grid.stroke({ color: 0x303238, width: 1, pixelLine: true });
   grid.visible = options.showGrid ?? true;
 
   const center = new Graphics()
-    .moveTo(ARTBOARD_WIDTH / 2 - 18, ARTBOARD_HEIGHT / 2)
-    .lineTo(ARTBOARD_WIDTH / 2 + 18, ARTBOARD_HEIGHT / 2)
-    .moveTo(ARTBOARD_WIDTH / 2, ARTBOARD_HEIGHT / 2 - 18)
-    .lineTo(ARTBOARD_WIDTH / 2, ARTBOARD_HEIGHT / 2 + 18)
+    .moveTo(width / 2 - 18, height / 2)
+    .lineTo(width / 2 + 18, height / 2)
+    .moveTo(width / 2, height / 2 - 18)
+    .lineTo(width / 2, height / 2 + 18)
     .stroke({ color: 0x666870, width: 1, pixelLine: true });
 
   const origin = new Graphics()

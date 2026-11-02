@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
+  "exports": { ".": "./src/index.ts", "./texture-urls": "./src/texture-urls.ts" },
   "scripts": {
     "generate:assets": "node scripts/generate-priest-assets.mjs",
     "check:assets": "node scripts/generate-priest-assets.mjs --check",

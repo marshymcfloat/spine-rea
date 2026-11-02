@@ -9,6 +9,7 @@
   },
   "devDependencies": {
     "@studio/runtime-pixi": "workspace:*",
+    "@studio/test-fixtures": "workspace:*",
     "pixi.js": "8.22.0",
     "vite": "8.3.5"
   }
