@@ -51,11 +51,7 @@ test('standalone build shares geometry, transport and cached-page lifetime witho
     if (!route.request().url().startsWith(address)) { unexpectedRequests.push(route.request().url()); await route.abort(); }
     else await route.continue();
   });
-  const visibilitySession = await context.newCDPSession(page);
   await page.goto(address);
-  await visibilitySession.send('Emulation.setFocusEmulationEnabled', { enabled: false });
-  await page.bringToFront();
-  await page.waitForFunction(() => !document.hidden && document.hasFocus(), null, { polling: 50 });
   await expect(page.locator('#status')).toHaveText('Canvas ready');
   await checkPreview(page);
   expect(await page.evaluate(() => ({ studio: typeof (window as unknown as { studio?: unknown }).studio, require: typeof (window as unknown as { require?: unknown }).require }))).toEqual({ studio: 'undefined', require: 'undefined' });
@@ -66,7 +62,16 @@ test('standalone build shares geometry, transport and cached-page lifetime witho
   });
   expect((await snapshot(page)).geometry).toEqual(before.geometry);
   await page.getByRole('button', { name: 'Play', exact: true }).click();
-  await expect.poll(async () => (await snapshot(page)).state.elapsedSeconds).toBeGreaterThan(.05);
+  await page.clock.runFor(200);
+  expect((await snapshot(page)).state.elapsedSeconds).toBeGreaterThan(.05);
+  await page.evaluate(() => dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true })));
+  const hidden = await snapshot(page);
+  await page.clock.runFor(150);
+  expect((await snapshot(page)).state.elapsedSeconds).toBe(hidden.state.elapsedSeconds);
+  expect((await snapshot(page)).counts.rafScheduled).toBe(false);
+  await page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })));
+  await page.clock.runFor(200);
+  expect((await snapshot(page)).state.elapsedSeconds).toBeGreaterThan(hidden.state.elapsedSeconds);
   await page.getByRole('button', { name: 'Pause', exact: true }).click();
   await page.screenshot({ path: info.outputPath('runtime-preview.png') });
   expect(errors).toEqual([]);

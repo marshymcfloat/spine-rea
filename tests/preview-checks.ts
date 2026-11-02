@@ -15,14 +15,21 @@ export async function snapshot(page: Page): Promise<PreviewSnapshot> {
 }
 
 export async function checkPreview(page: Page) {
-  await page.waitForFunction(() => Boolean((window as unknown as { __studioPreview?: unknown }).__studioPreview));
+  await page.waitForFunction(() => Boolean((window as unknown as { __studioPreview?: unknown }).__studioPreview), undefined, { polling: 50 });
   const initial = await snapshot(page);
   expect(initial.geometry.attachments).toHaveLength(9);
   expect(initial.state.status).toBe('paused');
   expect(initial.counts.rafScheduled).toBe(false);
 
+  // Install only at this idle boundary: no preview frame or previous frame timestamp survives.
+  // Virtual host time tests behavior; real-device profiling measures cadence separately.
+  // https://playwright.dev/docs/clock#tick-through-time-manually-firing-all-the-timers-consistently
+  await page.clock.install({ time: new Date('2026-11-03T00:00:00Z') });
+  await page.clock.pauseAt(new Date('2026-11-03T00:01:00Z'));
+
   await page.getByRole('button', { name: 'Play', exact: true }).click();
-  await expect.poll(async () => (await snapshot(page)).state.elapsedSeconds).toBeGreaterThan(.05);
+  await page.clock.runFor(200);
+  expect((await snapshot(page)).state.elapsedSeconds).toBeGreaterThan(.05);
   await page.getByLabel('Playback speed', { exact: true }).selectOption('2');
   expect((await snapshot(page)).state.speed).toBe(2);
   await page.getByLabel('Playback speed', { exact: true }).selectOption('0');
@@ -35,10 +42,11 @@ export async function checkPreview(page: Page) {
   await page.getByLabel('Animation clip', { exact: true }).selectOption('clip-idle');
   expect((await snapshot(page)).state.mixProgress).toBe(0);
   await page.getByLabel('Playback speed', { exact: true }).selectOption('0.5');
-  await expect.poll(async () => (await snapshot(page)).state.mixProgress).toBeGreaterThan(0);
+  await page.clock.runFor(200);
+  expect((await snapshot(page)).state.mixProgress).toBeGreaterThan(0);
   await page.getByRole('button', { name: 'Pause', exact: true }).click();
   const paused = await snapshot(page);
-  await page.waitForTimeout(150);
+  await page.clock.runFor(150);
   expect((await snapshot(page)).state.elapsedSeconds).toBe(paused.state.elapsedSeconds);
   expect((await snapshot(page)).counts.rafScheduled).toBe(false);
 
@@ -73,7 +81,7 @@ export async function checkPreview(page: Page) {
   expect(stopped.state.status).toBe('stopped');
   expect(stopped.counts.rafScheduled).toBe(false);
   const rendered = stopped.counts.renderedFrames;
-  await page.waitForTimeout(150);
+  await page.clock.runFor(150);
   expect((await snapshot(page)).counts.renderedFrames).toBe(rendered);
   await page.getByLabel('Playback speed', { exact: true }).selectOption('1');
 }

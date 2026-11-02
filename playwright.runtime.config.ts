@@ -9,6 +9,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   timeout: 60_000,
   expect: { timeout: 10_000 },
-  use: { channel: 'msedge', headless: false, viewport: { width: 1200, height: 800 }, screenshot: 'only-on-failure', trace: 'retain-on-failure' },
+  // Functional time is controlled by page.clock; native foreground validation belongs to profiling.
+  use: { channel: 'msedge', headless: true, viewport: { width: 1200, height: 800 }, screenshot: 'only-on-failure', trace: 'retain-on-failure' },
   reporter: 'list',
 });
