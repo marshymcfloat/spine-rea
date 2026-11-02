@@ -2,7 +2,7 @@
 
 An offline-first Windows editor for layered 2D rigs, weighted meshes, and slot-game presentation, initially for The Ninth Rite.
 
-This repository implements an Electron/React workspace with a PixiJS reference canvas, working view controls, a restricted read-only desktop bridge, and a standalone browser demo. It also provides validated project/runtime data contracts and original layered priest test fixtures. Bone evaluation, mesh playback, timeline editing, project persistence, and export compilation remain planned; the applications still display reference guides.
+This repository implements an Electron/React workspace with a PixiJS reference canvas, working view controls, a restricted read-only desktop bridge, and a standalone browser demo. It also provides validated data contracts, original priest fixtures, and a shared bone/clip evaluator with host-controlled playback. Mesh evaluation/rendering, authored editing, persistence, and export compilation remain planned; the applications still display reference guides.
 
 ## Start here
 
@@ -10,6 +10,7 @@ This repository implements an Electron/React workspace with a PixiJS reference c
 - [Product plan and acceptance gates](docs/PRODUCT_PLAN.md)
 - [Architecture and technical decisions](docs/ARCHITECTURE.md)
 - [Implemented data formats](docs/FORMATS.md)
+- [Shared evaluation and playback API](docs/PLAYBACK.md)
 - [Original priest fixtures and provenance](packages/test-fixtures/README.md)
 - [Work, review, and handoff process](docs/WORKFLOW.md)
 - [Linear project](https://linear.app/spine-rea/project/slot-animation-studio-07e39e20dfb5)
@@ -68,10 +69,10 @@ The script resolves its repository from its own location, so it can also be invo
 
 The [documentation workflow](.github/workflows/harness.yml) runs the default check on pushes and pull requests and supports manual runs.
 
-Schema and fixture unit tests run with `pnpm test`; the fixture check commands above
+Schema, fixture and shared playback tests run with `pnpm test`; the fixture check commands above
 read and compare outputs without rewriting them. Regeneration commands and authorship
 details are in the fixture package README. Its five named clip samples test the data
-contract and do not establish completed priest animations or runtime parity.
+contract and do not establish completed priest animations or export/vertex parity.
 
 ## Scope
 

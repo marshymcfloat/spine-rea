@@ -12,7 +12,7 @@ $failures = [Collections.Generic.List[string]]::new()
 $warnings = [Collections.Generic.List[string]]::new()
 $ignoredDirectories = @('.git', '.worktrees', 'generated', '.generated', 'node_modules', 'dist', 'build', 'out', 'coverage', '.cache', '.next', 'artifacts', 'release', 'target')
 $requiredFiles = @(
-    'AGENTS.md', 'README.md', 'docs/PRODUCT_PLAN.md', 'docs/ARCHITECTURE.md', 'docs/WORKFLOW.md', 'docs/FORMATS.md',
+    'AGENTS.md', 'README.md', 'docs/PRODUCT_PLAN.md', 'docs/ARCHITECTURE.md', 'docs/WORKFLOW.md', 'docs/FORMATS.md', 'docs/PLAYBACK.md',
     '.github/pull_request_template.md', 'scripts/check-harness.ps1', '.github/workflows/harness.yml',
     '.gitignore', '.gitattributes', '.editorconfig'
 )

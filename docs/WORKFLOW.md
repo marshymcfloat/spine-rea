@@ -78,7 +78,7 @@ Keep tasks small enough to verify independently. Prefer a complete path such as 
 | Packaging | Installed offline Windows smoke test with environment recorded |
 | Performance | Hardware, fixture size, texture/vertex counts, and measured result |
 
-Working commands are in the README. The foundation implements type checks, focused unit tests, portable Windows packaging, and a packaged Electron smoke test. Tests for skeletal animation, export parity, authored document commands, and persistence are added with those subsystems; do not claim the foundation smoke test verifies them.
+Working commands are in the README. The foundation implements type checks, unit tests, portable Windows packaging, and a packaged Electron smoke test. Shared core tests cover bone/clip sampling and playback boundaries. Export/vertex parity, authored document commands and persistence require their own checks as those subsystems arrive; the foundation smoke test does not verify them.
 
 ## Stop or hand off
 

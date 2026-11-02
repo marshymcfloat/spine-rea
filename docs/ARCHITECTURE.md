@@ -7,8 +7,10 @@ The repository implements the desktop foundation: `apps/desktop`,
 `apps/runtime-demo`, and reference viewport helpers in `@studio/runtime-pixi`.
 It also implements strict project/runtime validation in `@studio/schema` and original
 priest data/art in `@studio/test-fixtures`; see [FORMATS.md](FORMATS.md).
-The skeleton/clip evaluator, compiler, authored editing, persistence and animation-player
-interfaces below remain planned. Record consequential changes here; keep task status
+Shared bone/clip evaluation and host-controlled playback are implemented in
+`@studio/animation-core`; see [PLAYBACK.md](PLAYBACK.md). Mesh skinning, the compiler,
+authored editing, persistence and the rendered animation-player concept below remain planned.
+Record consequential changes here; keep task status
 and execution evidence in [Linear](https://linear.app/spine-rea/project/slot-animation-studio-07e39e20dfb5).
 
 ## Package responsibilities
@@ -21,7 +23,7 @@ Create packages when their first implementation task needs them, not as empty sc
 | `apps/desktop` | Foundation | Electron/preload, React workspace and reference view controls; authored editing follows. | Local I/O belongs behind validated preload operations; bridge currently reads app info only. |
 | `apps/runtime-demo` | Foundation | Independent browser reference canvas; exported animation loading follows. | Runtime packages only; no editor internals or Electron. |
 | `@studio/schema` | Implemented | Strict versioned authoring/runtime types and validation. | Zod/data only; no React, Electron, Pixi or filesystem access. |
-| `@studio/animation-core` | Planned | Transforms, clip sampling, interpolation, mixing, markers and CPU skinning. | Pure data/math; no renderer, DOM, I/O or wall clock. |
+| `@studio/animation-core` | Bones/playback implemented; skinning planned | Hierarchy transforms, clip sampling, local-channel mixing and host-clock playback/markers. CPU skinning follows. | Pure schema/data/math; no renderer, DOM, I/O or wall clock. |
 | `@studio/compiler` | Planned | Authoring-to-runtime conversion and asset requirements. | No editor/UI dependency; desktop services write files. |
 | `@studio/runtime-pixi` | Foundation | Reference guides/view fitting; animated geometry rendering follows. | No React, Electron or authoring commands. |
 | `@studio/slot-events` | Planned | Resolved-event mapping and deterministic sequences. | Presentation only; no outcome/wagering logic. |
@@ -33,8 +35,9 @@ The editor's authored model is serializable data; Pixi objects are derived view 
 
 ## Data and rendering flow
 
-The following is the target authoring/playback flow; its compiler, evaluator and
-project filesystem services are not implemented by the current schema/fixture packages.
+The following is the target authoring/playback flow. The shared evaluator currently
+produces bone matrices and attachment opacity; mesh geometry, compilation and project
+filesystem services remain planned.
 
 ```text
 PNG files → desktop import service → project-owned source assets
@@ -109,7 +112,8 @@ out of frame-by-frame evaluation. Profile before considering a separate GPU path
 
 ## Playback and public runtime concept
 
-The following is the target API concept, not a currently available package:
+The following is the target rendered-player API concept. The implemented pure controller
+is `createPlaybackController(evaluator)`; its API and timing rules are in [PLAYBACK.md](PLAYBACK.md).
 
 ```ts
 const player = await createAnimationPlayer({ container, manifestUrl });
@@ -182,3 +186,11 @@ All decisions below were accepted on 2026-11-02; revise with dated rationale whe
 - Reject broken references, bone cycles, invalid triangles, duplicate/unnormalized weights and malformed tracks/markers. Validation does not silently repair input. PNG existence/content checks are fixture evidence, not schema I/O.
 - Keep attachment draw order explicit and independent of hierarchy. Store mesh influences rather than inverse-bind matrices; the future evaluator derives those matrices from setup transforms.
 - Provide original nine-layer geometric priest art, source/output hashes and byte-reproducible Node generators. The validated 12-bone/weighted-robe documents and five technical clip inputs are independently cloned for callers; they do not establish evaluation, compiler output or visual parity.
+
+### Shared bone playback implementation: 2026-11-02
+
+- Validate/snapshot the selected rig and clips once. Resolve hierarchy iteratively, retain source array order in pose outputs, and keep draw order independent. Pure sampling returns local transforms, full affine world matrices and attachment opacity.
+- Compose translation × rotation × scale; preserve nested nonuniform/mirrored transforms. Sample outgoing-key linear, hold and cubic Bézier easing with X inversion. Unkeyed channels retain setup; rotation keys and blends remain unwrapped scalars.
+- Blend local channels before computing matrices. Normal fades advance both clips; interrupted fades capture a frozen mixed pose. Clip and fade clocks use host elapsed seconds scaled by playback speed; pause/speed zero freeze them.
+- Return marker records from updates so hosts dispatch callbacks outside evaluation. Seeking is silent and cancels fades. Preserve unwrapped loop cursors, stable boundary/tie order and pending start markers. Reject unsafe derived arithmetic or more than 10,000 events before changing controller state.
+- Own independent snapshots at input/output boundaries. Renderer-free tests compare authoring/runtime fixture bones and opacity after JSON serialization. These checks do not establish compiler, skinned-vertex or visual parity; mesh evaluation follows separately.

@@ -2,7 +2,8 @@
 
 Implemented: 2026-11-02. The authoritative validators and exported TypeScript types
 are in [`@studio/schema`](../packages/schema/src/index.ts). These contracts describe
-data; the evaluator, compiler, project filesystem service and animated player remain planned.
+data. Shared bone/clip evaluation and host-clock playback are described in
+[PLAYBACK.md](PLAYBACK.md); mesh evaluation, compiler, project filesystem service and rendered player remain planned.
 
 ## Documents and API
 
@@ -95,13 +96,14 @@ Each key requires one easing descriptor:
 - `{ type: 'hold' }`
 - `{ type: 'bezier', x1, y1, x2, y2 }`, with every control value in `[0, 1]`.
 
-These descriptors are stored and validated; curve sampling is not implemented yet.
+These descriptors are sampled by the shared evaluator according to [PLAYBACK.md](PLAYBACK.md).
 A marker contains `id`, `name`, `time` and optional `data`. Marker times are
 nondecreasing within `[0, duration]`; ties are allowed and stored order is preserved.
 Concrete payloads are JSON values: finite numbers, strings, booleans, null, dense
 plain arrays and plain/null-prototype objects. Cycles, functions, symbols, non-finite
 numbers, custom prototypes and hidden/extra array metadata are rejected.
-Marker storage does not implement callbacks, scrubbing or audio/event orchestration.
+The shared controller returns marker crossings to its host; seeking is silent.
+Marker storage itself does not invoke callbacks or implement audio/event orchestration.
 
 ## Version policy and fixture evidence
 
@@ -122,7 +124,7 @@ The fixture has 12 bones, eight region attachments, one mesh and nine original P
 layers. Explicit draw order places a rear arm and robe behind the torso and the front
 arm above it. Five short named clip inputs cover loop/one-shot data, all easing kinds,
 opacity tracks and marker payloads. They are technical samples, not finished animations
-or proof of playback/export parity; the current applications still show reference guides.
+or proof of export/vertex parity; the current applications still show reference guides.
 
 Tests cover invalid contracts/references/geometry/weights, fixture parsing, JSON
 roundtrips, nested clone independence, PNG metadata/transparency, source/output hashes
