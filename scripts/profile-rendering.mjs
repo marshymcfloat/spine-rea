@@ -8,7 +8,8 @@ import { execFileSync } from 'node:child_process';
 import { gzipSync } from 'node:zlib';
 import { createHash } from 'node:crypto';
 import { performance } from 'node:perf_hooks';
-import { _electron, chromium } from '@playwright/test';
+import { _electron } from '@playwright/test';
+import { launchProfileBrowser } from './launch-profile-browser.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const args = process.argv.slice(2);
@@ -28,7 +29,7 @@ if (!['desktop', 'browser'].includes(host) || !Number.isFinite(seconds) || secon
 const output = resolve(root, 'test-results/performance', label);
 await mkdir(output, { recursive: true });
 const errors = [];
-let application, browser, server, page, session;
+let application, browser, nativeBrowser, server, page, session;
 const summary = (values) => {
   const sorted = [...values].sort((a, b) => a - b);
   const p = (fraction) => sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * fraction))] : null;
@@ -59,7 +60,9 @@ async function installDiagnostics(target) {
     if (!baseline) window.__studioDiagnosticsRequested = stressGridSide ? { stressGridSide } : {};
     window.__profileLongTasks = [];
     window.__profileVisibilityEvents = [];
+    window.__profileFocusEvents = [];
     document.addEventListener('visibilitychange', () => window.__profileVisibilityEvents.push({ time: performance.now(), state: document.visibilityState }));
+    for (const name of ['focus', 'blur']) window.addEventListener(name, () => window.__profileFocusEvents.push({ time: performance.now(), state: name }));
     new PerformanceObserver((list) => {
       for (const item of list.getEntries()) window.__profileLongTasks.push({ startTime: item.startTime, duration: item.duration });
     }).observe({ type: 'longtask', buffered: true });
@@ -157,14 +160,12 @@ try {
   } else {
     const url = await serveDemo();
     report.artifactSha256 = createHash('sha256').update(await readFile(resolve(buildRoot, 'apps/runtime-demo/dist/index.html'))).digest('hex');
-    const context = await chromium.launchPersistentContext(resolve(output, 'browser-user-data'), {
-      channel: process.env.STUDIO_BROWSER_CHANNEL ?? 'msedge', headless: false,
-      viewport: { width: 1440, height: 960 }, deviceScaleFactor: 1,
-    });
-    browser = context.browser();
-    if (!browser) throw new Error('The profiling browser did not expose its owner.');
+    nativeBrowser = await launchProfileBrowser({ url, directory: output });
+    const { context } = nativeBrowser;
+    browser = nativeBrowser.browser;
+    report.methodology.browserLaunch = 'Native Edge process, CDP noDefaults; no Playwright launch flags, viewport or focus emulation.';
     await installDiagnostics(context);
-    page = context.pages()[0] ?? await context.newPage();
+    page = nativeBrowser.page;
     listenForErrors(page);
     await page.goto(url);
     report.versions = { browser: browser.version() };
@@ -174,6 +175,10 @@ try {
   report.startupLimit = 'Includes diagnostic reload for desktop; not a cold-start claim.';
   await page.bringToFront();
   session = await page.context().newCDPSession(page);
+  await session.send('Emulation.setFocusEmulationEnabled', { enabled: false });
+  await page.bringToFront();
+  await page.waitForFunction(() => !document.hidden && document.hasFocus(), null, { polling: 50 });
+  report.methodology.focusEmulation = false;
   await session.send('Performance.enable');
   report.renderer = await page.evaluate(() => {
     const canvas = document.querySelector('canvas');
@@ -185,12 +190,16 @@ try {
   if (!baseline) await page.getByRole('button', { name: 'Play', exact: true }).click();
   await wait(baseline ? 2000 : 5000);
   for (let run = 0; run < runs; run++) {
+    await page.bringToFront();
+    await page.waitForFunction(() => !document.hidden && document.hasFocus(), null, { polling: 50 });
+    await wait(1000);
     const before = await metrics(session);
     const processBefore = application ? await application.evaluate(({ app }) => app.getAppMetrics()) : null;
     await session.send('Tracing.start', { categories: 'devtools.timeline,disabled-by-default-devtools.timeline.frame,v8,gpu,cc,viz,blink.user_timing', options: 'record-as-much-as-possible', transferMode: 'ReturnAsStream' });
     const captureStarted = await page.evaluate(() => {
       window.__profileLongTasks = []; window.__profileDrawCalls = 0;
       window.__profileVisibilityEvents = [];
+      window.__profileFocusEvents = [];
       if (document.hidden) throw new Error('The measured preview must be visible.');
       performance.mark('studio:capture-start');
       window.__studioPreview?.startCapture();
@@ -204,12 +213,10 @@ try {
       return { captured: data, endedAt, snapshot: window.__studioPreview?.snapshot() ?? null,
         longTasks: window.__profileLongTasks.filter((entry) => entry.startTime >= start && entry.startTime <= endedAt),
         visibilityEvents: window.__profileVisibilityEvents,
+        focusEvents: window.__profileFocusEvents,
         drawCalls: window.__profileDrawCalls, visibility: document.visibilityState, focused: document.hasFocus() };
     }, captureStarted);
     const durationMs = captured.endedAt - captureStarted;
-    if (!baseline && (!captured.captured || !captured.snapshot || !captured.captured.frameTimestampsMs.length || captured.captured.droppedSamples)) {
-      throw new Error('Incomplete rendered capture: missing preview, no rendered samples or diagnostic sample overflow.');
-    }
     const after = await metrics(session);
     const processAfter = application ? await application.evaluate(({ app }) => app.getAppMetrics()) : null;
     const trace = await endTrace(session, resolve(output, `run-${run + 1}.trace.json.gz`));
@@ -223,6 +230,12 @@ try {
     report.runs.push(entry);
     await writeFile(resolve(output, 'report.json'), JSON.stringify(report, null, 2));
     console.log(JSON.stringify({ label, run: run + 1, durationMs, phases, longTasks: captured.longTasks.length, drawCalls: captured.drawCalls, visibility: captured.visibility, traceEvents: trace.eventCounts }));
+    if (!baseline && (!captured.captured || !captured.snapshot || !captured.captured.frameTimestampsMs.length || captured.captured.droppedSamples)) {
+      throw new Error('Incomplete rendered capture: missing preview, no rendered samples or diagnostic sample overflow.');
+    }
+    if (captured.visibility !== 'visible' || !captured.focused || captured.visibilityEvents.some((event) => event.state !== 'visible') || captured.focusEvents.some((event) => event.state === 'blur')) {
+      throw new Error('Foreground capture invalidated by a real visibility/focus change; recorded evidence is retained.');
+    }
   }
   if (!baseline) {
     await page.getByRole('button', { name: 'Pause', exact: true }).click();
@@ -263,9 +276,8 @@ try {
   }
   try {
     await clean('detach tracing session', async () => session?.detach());
-    if (browser) await clean('close measured page', async () => page?.close());
     if (application) await clean('close owned Electron', async () => application.close());
-    if (browser) await clean('close owned browser', async () => browser.close());
+    if (nativeBrowser) await clean('close owned native browser', () => nativeBrowser.dispose());
   } finally {
     if (server) await clean('close local file server', async () => {
       const closed = new Promise((done) => server.close(done));

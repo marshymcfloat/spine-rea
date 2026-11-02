@@ -63,7 +63,8 @@ test('packaged desktop canvas works offline with an isolated preload boundary', 
 
     page = await application.firstWindow();
     const browserWindow = await application.browserWindow(page);
-    await browserWindow.evaluate((window) => window.showInactive());
+    await browserWindow.evaluate((window) => { window.show(); window.focus(); });
+    const visibilitySession = await context.newCDPSession(page);
     page.on('pageerror', (error) => pageErrors.push(error.message));
     page.on('console', (message) => diagnostics.push(`renderer ${message.type()}: ${message.text()}`));
 
@@ -71,6 +72,7 @@ test('packaged desktop canvas works offline with an isolated preload boundary', 
     await expect(page).toHaveURL('app://studio/index.html');
     await expect(page.getByRole('heading', { name: 'Workspace', exact: true })).toBeVisible();
     await page.reload();
+    await visibilitySession.send('Emulation.setFocusEmulationEnabled', { enabled: false });
     await expect(page).toHaveTitle('Slot Animation Studio');
     await expect(page.getByRole('heading', { name: 'Workspace', exact: true })).toBeVisible();
     const canvasStatus = page.getByRole('contentinfo').getByRole('status');
