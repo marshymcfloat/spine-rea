@@ -1,0 +1,27 @@
+{
+  "name": "@studio/desktop",
+  "productName": "Slot Animation Studio",
+  "version": "0.0.1",
+  "description": "Offline animation authoring workspace",
+  "author": "Daniel Canoy",
+  "private": true,
+  "main": ".vite/build/main.cjs",
+  "scripts": {
+    "dev": "electron-forge start",
+    "package": "electron-forge package --platform win32 --arch x64"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "8.0.1",
+    "@electron-forge/plugin-vite": "8.0.1",
+    "@electron-forge/shared-types": "8.0.1",
+    "@studio/runtime-pixi": "workspace:*",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.2.1",
+    "electron": "45.2.1",
+    "pixi.js": "8.22.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "vite": "8.3.5"
+  }
+}

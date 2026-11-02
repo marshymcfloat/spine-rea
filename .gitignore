@@ -5,6 +5,7 @@ out/
 build/
 coverage/
 playwright-report/
+.playwright-mcp/
 test-results/
 .vite/
 .cache/

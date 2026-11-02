@@ -1,0 +1,24 @@
+{
+  "name": "slot-animation-studio",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.19.0",
+  "engines": { "node": ">=24 <25", "pnpm": ">=10 <11" },
+  "scripts": {
+    "dev": "pnpm --filter @studio/desktop dev",
+    "dev:demo": "pnpm --filter @studio/runtime-demo dev",
+    "build": "pnpm --filter @studio/runtime-demo build && pnpm --filter @studio/desktop package",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:desktop": "playwright test",
+    "check:harness": "pwsh -NoProfile -File ./scripts/check-harness.ps1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@types/node": "24.19.2",
+    "typescript": "7.0.2",
+    "vitest": "5.0.5",
+    "vite": "8.3.5"
+  }
+}

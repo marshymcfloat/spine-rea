@@ -1,0 +1,15 @@
+{
+  "name": "@studio/runtime-demo",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5174 --strictPort",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "@studio/runtime-pixi": "workspace:*",
+    "pixi.js": "8.22.0",
+    "vite": "8.3.5"
+  }
+}

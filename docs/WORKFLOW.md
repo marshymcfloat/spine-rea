@@ -75,7 +75,7 @@ Keep tasks small enough to verify independently. Prefer a complete path such as 
 | Packaging | Installed offline Windows smoke test with environment recorded |
 | Performance | Hardware, fixture size, texture/vertex counts, and measured result |
 
-Harness commands are in the README. Application tests, lint/type checks, and packaging commands must be implemented and documented before being required; currently they do not exist.
+Working commands are in the README. The foundation implements type checks, focused unit tests, portable Windows packaging, and a packaged Electron smoke test. Tests for skeletal animation, export parity, authored document commands, and persistence are added with those subsystems; do not claim the foundation smoke test verifies them.
 
 ## Stop or hand off
 

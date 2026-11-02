@@ -2,7 +2,7 @@
 
 An offline-first Windows editor for layered 2D rigs, weighted meshes, and slot-game presentation, initially for The Ninth Rite.
 
-This repository contains the development harness and approved design. The editor, runtime packages, and application build/test commands will be added through the tracked implementation tasks.
+This repository contains the development harness and the desktop foundation: an Electron/React workspace with a PixiJS reference canvas, working view controls, a restricted read-only desktop bridge, and a standalone browser demo. Rig, mesh, timeline, project persistence, and animation export tools remain planned.
 
 ## Start here
 
@@ -21,11 +21,35 @@ Linear is authoritative for task status. Start from its active issues and depend
 | --- | --- | --- |
 | PowerShell | 7+ | Run local harness checks |
 | Git | 2+ | Version control and worktrees |
-| Node.js | 24.x | Planned application development baseline |
-| pnpm | 10.x | Planned workspace package manager |
+| Node.js | 24.x | Application development baseline |
+| pnpm | 10.19.0 | Locked workspace package manager |
 | GitHub CLI | Optional | Repository and review operations |
 
-The harness has no npm dependencies. Documentation validation works offline and does not require Node or pnpm. Missing development tools are warnings in the default check and errors in the strict environment check. Optional skill references remain warnings in either mode.
+The documentation harness has no npm dependencies. Its validation works offline and does not require Node or pnpm. Missing development tools are warnings in the default harness check and errors in its strict environment check. Optional skill references remain warnings in either mode. Application dependency installation requires network access once; the built application runs offline.
+
+## Develop and build
+
+Run these commands from the repository root on Windows x64:
+
+```powershell
+pnpm install --frozen-lockfile
+pnpm dev
+```
+
+`pnpm dev` opens the desktop application with a local development server. Close the window and stop the command when finished. Use the workspace controls to zoom, fit the reference artboard, and toggle the grid. These are view controls; authored project editing is not implemented yet.
+
+| Command | Behavior |
+| --- | --- |
+| `pnpm dev:demo` | Serve the independent browser canvas demo at `http://127.0.0.1:5174` |
+| `pnpm typecheck` | Check application, package, config, and test TypeScript |
+| `pnpm test` | Run focused unit tests |
+| `pnpm build` | Build the browser demo and package a portable Windows x64 Electron application |
+| `pnpm test:desktop` | Run the packaged-application smoke test after `pnpm build` |
+| `pnpm check:harness` | Validate the repository documentation and setup |
+
+The portable application is `apps/desktop/out/slot-animation-studio-win32-x64/slot-animation-studio.exe`. The browser build is under `apps/runtime-demo/dist`. Both are generated outputs and excluded from Git. This stage produces a portable application; installer distribution is tracked separately.
+
+The [application workflow](.github/workflows/application.yml) installs the frozen lockfile, type-checks, runs unit tests, builds both applications, and smoke-tests the packaged Electron app on Windows. The smoke test uses Electron's own executable without downloading Playwright browsers and saves evidence under `test-results/`.
 
 ## Run checks
 
@@ -38,7 +62,7 @@ pwsh -NoProfile -File ./scripts/check-harness.ps1 -CheckEnvironment
 
 The script resolves its repository from its own location, so it can also be invoked by absolute path from another directory. It validates required files and repository Markdown links and reports local tool diagnostics. It makes no installs or network calls.
 
-The [Windows workflow](.github/workflows/harness.yml) runs the default check on pushes and pull requests and supports manual runs. Application checks will be added when the corresponding tools exist.
+The [documentation workflow](.github/workflows/harness.yml) runs the default check on pushes and pull requests and supports manual runs.
 
 ## Scope
 

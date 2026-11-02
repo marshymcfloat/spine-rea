@@ -14,7 +14,7 @@
 - First release includes placeholder priest art, hierarchical bones, editable textured meshes, painted/numeric bone weights, and all five priest clips.
 - Weighted meshes support up to four normalized influences per vertex. Direct vertex animation and IK are deferred.
 - Consume already-resolved game events. Outcome generation, wagering, balances, and payout logic are outside this product.
-- The current repository contains the harness. Do not report planned editor/runtime capabilities as implemented.
+- The current implementation is the desktop foundation and shared reference canvas. Rigging, animation, persistence, and runtime export remain planned; check the README before describing capabilities.
 
 ## Architecture and editing
 
@@ -38,6 +38,7 @@
 
 - Run `pwsh -NoProfile -File ./scripts/check-harness.ps1` for documentation/harness changes.
 - Run `pwsh -NoProfile -File ./scripts/check-harness.ps1 -CheckEnvironment` when preparing a development machine or changing setup.
+- Run `pnpm typecheck` and `pnpm test` for application changes. For shell, renderer, bridge, or packaging changes run `pnpm build` followed by `pnpm test:desktop` and inspect the screenshot and diagnostics.
 - Application commands are added only when they exist. Never describe an unrun check as passing.
 - Test changed behavior at its boundary. Mesh/core/compiler changes need deterministic bone and vertex parity; persistence changes need save/reopen or recovery evidence.
 - Exercise UI changes in the running desktop application once it exists. Compilation alone does not establish behavior.

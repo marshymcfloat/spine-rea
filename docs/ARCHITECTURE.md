@@ -3,9 +3,11 @@
 Decision date: 2026-11-02. Product authority: [PRODUCT_PLAN.md](PRODUCT_PLAN.md).
 Working practices: [WORKFLOW.md](WORKFLOW.md).
 
-The repository is currently a development harness. Every application package,
-interface and flow in this document is planned, not an implemented capability.
-Record consequential changes here; keep task status and execution evidence in Linear.
+The repository implements the desktop foundation: `apps/desktop`,
+`apps/runtime-demo`, and reference viewport helpers in `@studio/runtime-pixi`.
+The skeleton/clip evaluator, schemas, compiler, authored editing, persistence, and
+animation-player interfaces below remain planned. Record consequential changes
+here; keep task status and execution evidence in Linear.
 
 ## Package responsibilities
 
@@ -19,7 +21,7 @@ Create packages when their first implementation task needs them, not as empty sc
 | `@studio/schema` | Versioned authoring/runtime types, validation and explicit migrations. | No React, Electron, Pixi or filesystem dependency. |
 | `@studio/animation-core` | Local/world transforms, clip sampling, interpolation, mixing, marker crossing and CPU skinning. | Pure data/math; no renderer, DOM, I/O or wall-clock reads. |
 | `@studio/compiler` | Validates authoring data and produces runtime data and asset requirements. | No editor/UI dependency; filesystem writes remain a desktop service. |
-| `@studio/runtime-pixi` | Runtime loading, playback orchestration and Pixi rendering of evaluated geometry. | No React, Electron or authoring commands. |
+| `@studio/runtime-pixi` | Reference canvas guides and view fitting now; runtime loading/playback and evaluated geometry rendering later. | No React, Electron or authoring commands. |
 | `@studio/slot-events` | Later resolved-event mapping and deterministic sequence playback. | Presentation only; no outcome calculation or wagering logic. |
 | `@studio/test-fixtures` | Original small rigs, images, clips and expected results. | Reproducible data shared by parity tests and the demo. |
 
@@ -154,3 +156,12 @@ All decisions below were accepted on 2026-11-02; revise with dated rationale whe
 | Explicit setup/rebind and seconds timing | Avoid ambiguous bind changes and frame-rate-dependent data. | Implicit rebinding and frame-index-only timelines. |
 | Placeholder art and original PNG exports first | Prove the full authoring/playback path before art and atlas optimization. | Lossless import of existing priest deformation; automatic art preparation. |
 | Resolved-event presentation only | Preserve the game's separate ownership of results and mathematics. | Outcome generation and wagering features are excluded. |
+
+### Foundation implementation: 2026-11-02
+
+- Pin pnpm 10.19.0 and the dependency lockfile on Node 24. Electron Forge 8 and Vite 8 build the desktop shell; React 19 and PixiJS 8 render its workspace. The [Forge Vite integration](https://www.electronforge.io/config/plugins/vite) is labeled experimental, so upgrades are explicit changes with packaging/smoke verification.
+- Forge emits CommonJS `main.cjs` and `preload.cjs`. Production assets use the restricted `app://studio` protocol and a Content Security Policy. The sandboxed preload exposes only `getAppInfo()`; filesystem operations wait for their owning tasks.
+- Bundle renderer libraries into the application output. They are desktop development dependencies; no React/Pixi Node runtime dependencies are needed by the packaged main/preload processes.
+- Use pnpm's hoisted linker for Forge compatibility and resolve real paths/deduplicate Pixi in the renderer. This keeps the shared guides and host on one Pixi instance, including its strict-CSP polyfill.
+- Initialize Pixi in each host, use the shared guides module in desktop and browser, and render on view changes rather than running an idle animation ticker. The reference artboard does not establish a project/export schema.
+- Run type/unit checks and packaged Electron smoke tests in Windows CI. Installer creation remains a separate task.

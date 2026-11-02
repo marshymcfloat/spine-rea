@@ -1,0 +1,10 @@
+{
+  "name": "@studio/runtime-pixi",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "sideEffects": ["./src/index.ts"],
+  "peerDependencies": { "pixi.js": "^8.22.0" },
+  "devDependencies": { "pixi.js": "8.22.0" }
+}

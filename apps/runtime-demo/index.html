@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'" />
+    <title>Slot Animation Studio Runtime Demo</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <main class="demo-shell">
+      <header class="demo-header">
+        <div>
+          <p class="demo-label">Slot Animation Studio</p>
+          <h1>Runtime Demo</h1>
+        </div>
+        <span class="demo-badge">Standalone preview</span>
+      </header>
+      <section class="demo-viewport" aria-label="Reference artboard viewport">
+        <div id="viewport"></div>
+        <div class="demo-guide-label">1920 × 1080 / Reference artboard</div>
+        <p class="demo-message" id="message">Preparing canvas…</p>
+      </section>
+      <footer class="demo-footer">
+        <span id="status" role="status">Preparing canvas</span>
+        <span>Shared reference guides · No project loaded</span>
+      </footer>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
