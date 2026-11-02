@@ -1,0 +1,17 @@
+node_modules/
+.pnpm-store/
+dist/
+out/
+build/
+coverage/
+playwright-report/
+test-results/
+.vite/
+.cache/
+.worktrees/
+.env
+.env.*
+!.env.example
+*.log
+Thumbs.db
+.DS_Store
