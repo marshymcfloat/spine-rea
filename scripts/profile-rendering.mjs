@@ -89,8 +89,8 @@ async function installDiagnostics(target) {
 }
 
 async function readiness() {
-  await page.waitForFunction(() => [...document.querySelectorAll('[role="status"]')].some((node) => node.textContent.includes('Canvas ready')));
-  if (!baseline) await page.waitForFunction(() => !!window.__studioPreview);
+  await page.waitForFunction(() => [...document.querySelectorAll('[role="status"]')].some((node) => node.textContent.includes('Canvas ready')), null, { polling: 50 });
+  if (!baseline) await page.waitForFunction(() => !!window.__studioPreview, null, { polling: 50 });
 }
 
 function listenForErrors(target) {
@@ -168,6 +168,7 @@ try {
     page = nativeBrowser.page;
     listenForErrors(page);
     await page.goto(url);
+    await page.bringToFront();
     report.versions = { browser: browser.version() };
   }
   await readiness();
@@ -259,6 +260,10 @@ try {
   if (errors.length) process.exitCode = 1;
 } catch (error) {
   errors.push(String(error)); process.exitCode = 1;
+  try {
+    report.failureState = await page?.evaluate(() => ({ url: location.href, hidden: document.hidden, focused: document.hasFocus(), body: document.body.innerText.slice(0, 3000) }));
+    await page?.screenshot({ path: resolve(output, 'failure.png'), timeout: 5000 });
+  } catch { /* The failed target may already be closed. */ }
 } finally {
   report.cleanup = [];
   let cleanupFailed = false;

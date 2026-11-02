@@ -12,8 +12,8 @@ export async function launchProfileBrowser({ url, directory }) {
   );
   const processHandle = spawn(executable, [
     '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--no-first-run',
-    '--no-default-browser-check', '--window-size=1440,960', 'about:blank',
-  ], { stdio: ['ignore', 'ignore', 'pipe'], windowsHide: true });
+    '--no-default-browser-check', '--window-size=1440,960', '--new-window', 'about:blank',
+  ], { stdio: ['ignore', 'ignore', 'pipe'], windowsHide: false });
   let launchError;
   processHandle.on('error', (error) => { launchError = error; });
   const diagnostics = [];
