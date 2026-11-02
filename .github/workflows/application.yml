@@ -53,5 +53,8 @@ jobs:
             test-results/**/desktop-*.png
             test-results/**/electron-diagnostics.json
             test-results/**/runtime-preview.png
+            test-results/**/test-failed-*.png
+            test-results/**/runtime-diagnostics.json
+            test-results/**/trace.zip
             test-results/**/error-context.md
           if-no-files-found: ignore

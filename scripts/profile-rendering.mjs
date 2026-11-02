@@ -108,7 +108,7 @@ async function endTrace(session, file) {
   if (!result.stream) throw new Error('Trace stream missing.');
   let source = '';
   while (true) {
-    const chunk = await session.send('IO.read', { handle: result.stream });
+    const chunk = await session.send('IO.read', { handle: result.stream, size: 1024 * 1024 });
     source += chunk.base64Encoded ? Buffer.from(chunk.data, 'base64').toString('utf8') : chunk.data;
     if (chunk.eof) break;
   }

@@ -1,5 +1,5 @@
 import { createServer, type Server } from 'node:http';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { resolve, relative, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
@@ -28,6 +28,18 @@ test.afterAll(async () => {
   await stopped;
 });
 
+test.afterEach(async ({ page }, info) => {
+  if (info.status === info.expectedStatus) return;
+  try {
+    await writeFile(info.outputPath('runtime-diagnostics.json'), JSON.stringify(await page.evaluate(() => ({
+      url: location.href, visibility: document.visibilityState, focused: document.hasFocus(),
+      status: document.getElementById('status')?.textContent,
+      alert: document.querySelector('[role="alert"]')?.textContent,
+      snapshot: window.__studioPreview?.snapshot() ?? null,
+    })), null, 2));
+  } catch (error) { await writeFile(info.outputPath('runtime-diagnostics.json'), JSON.stringify({ error: String(error) })); }
+});
+
 test('standalone build shares geometry, transport and cached-page lifetime without desktop services', async ({ page, context }, info) => {
   const errors: string[] = [];
   const unexpectedRequests: string[] = [];
@@ -40,6 +52,8 @@ test('standalone build shares geometry, transport and cached-page lifetime witho
     else await route.continue();
   });
   await page.goto(address);
+  await page.bringToFront();
+  await page.waitForFunction(() => !document.hidden, null, { polling: 50 });
   await expect(page.locator('#status')).toHaveText('Canvas ready');
   await checkPreview(page);
   expect(await page.evaluate(() => ({ studio: typeof (window as unknown as { studio?: unknown }).studio, require: typeof (window as unknown as { require?: unknown }).require }))).toEqual({ studio: 'undefined', require: 'undefined' });

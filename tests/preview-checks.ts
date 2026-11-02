@@ -32,6 +32,8 @@ export async function checkPreview(page: Page) {
   expect(fading.state.clipId).toBe('clip-pray');
   expect(fading.state.mixProgress).toBe(0);
   expect(fading.counts.rafScheduled).toBe(false);
+  await page.getByLabel('Animation clip', { exact: true }).selectOption('clip-idle');
+  expect((await snapshot(page)).state.mixProgress).toBe(0);
   await page.getByLabel('Playback speed', { exact: true }).selectOption('0.5');
   await expect.poll(async () => (await snapshot(page)).state.mixProgress).toBeGreaterThan(0);
   await page.getByRole('button', { name: 'Pause', exact: true }).click();
@@ -39,6 +41,8 @@ export async function checkPreview(page: Page) {
   await page.waitForTimeout(150);
   expect((await snapshot(page)).state.elapsedSeconds).toBe(paused.state.elapsedSeconds);
   expect((await snapshot(page)).counts.rafScheduled).toBe(false);
+
+  await page.getByLabel('Animation clip', { exact: true }).selectOption('clip-pray');
 
   const canvas = page.getByTestId('studio-canvas');
   const beforeSeek = await canvas.screenshot();
