@@ -4,7 +4,7 @@
 
 | Information | Authoritative location |
 | --- | --- |
-| Task status, owner, dependencies, evidence, next action | [Linear project](https://linear.app/serviceflow/project/slot-animation-studio-baaf385fd9f6) |
+| Task status, owner, dependencies, evidence, next action | [SPINE-REA Linear project](https://linear.app/spine-rea/project/slot-animation-studio-07e39e20dfb5) |
 | Product scope and acceptance gates | [Product plan](PRODUCT_PLAN.md) |
 | Package boundaries and dated technical decisions | [Architecture](ARCHITECTURE.md) |
 | Agent operating rules | [AGENTS.md](../AGENTS.md) |
@@ -19,9 +19,11 @@ Do not mirror issue states into a Markdown backlog, status page, or handoff log.
 2. Read the latest issue progress/evidence and referenced commit or PR. Prefer verified code when old notes disagree, and correct the notes.
 3. Continue the assigned In Progress issue, or select the highest-priority Todo issue whose blockers are Done. Keep one primary issue in progress per agent; do not move a blocked task forward silently.
 4. Confirm outcome, acceptance criteria, dependencies, and intended verification before editing. Fill missing implementation decisions in the issue or architecture document.
-5. Create an issue branch such as `SER-72-workspace-shell`. The initial harness is bootstrapped on `main`; later changes use linked pull requests.
+5. Create an issue branch such as `SPI-7-formats-fixtures`. The initial harness is bootstrapped on `main`; later changes use linked pull requests.
 
-Use the existing Serviceflow team states: **Backlog -> Todo -> In Progress -> In Review -> Done**. A blocked issue keeps its current state and records its dependency/blocker and required next action. Use Canceled or Duplicate only when appropriate.
+Use the Spine-rea team states: **Backlog -> Todo -> In Progress -> In Review -> Done**. A blocked issue keeps its current state and records its dependency/blocker and required next action. Use Canceled or Duplicate only when appropriate. Confirm that the integration exposes the `spine-rea` workspace before making updates.
+
+Tracking moved from Serviceflow on 2026-11-02. Historical `SER-71` through `SER-78` references in commits correspond, in order, to `SPI-5` through `SPI-12`. Use the SPI issues for ongoing work; their migration sections preserve original dates and state history.
 
 ## Issue template
 
@@ -68,7 +70,8 @@ Keep tasks small enough to verify independently. Prefer a complete path such as 
 | Change | Minimum evidence once the subsystem exists |
 | --- | --- |
 | Harness/docs | Default harness check; strict environment check when setup changes; GitHub documentation workflow |
-| Schema/core/compiler/mesh | Focused deterministic tests, invalid-input coverage, and bone/vertex export parity |
+| Schema/fixtures | Version/semantic validation, invalid-input coverage, JSON round trips, and asset provenance/integrity |
+| Core/compiler/mesh | Focused deterministic tests and bone/vertex export parity once compilation exists |
 | Editor UI | Running desktop workflow, including relevant keyboard/selection/edit behavior |
 | Document editing | Undo/redo behavior for the operation |
 | Persistence/assets | Save/reopen, missing-asset behavior, or interrupted-save recovery as relevant |

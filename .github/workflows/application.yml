@@ -34,6 +34,10 @@ jobs:
         run: pnpm typecheck
       - name: Unit tests
         run: pnpm test
+      - name: Verify reproducible fixture assets and documents
+        run: |
+          pnpm --filter @studio/test-fixtures check:assets
+          pnpm --filter @studio/test-fixtures check:documents
       - name: Build standalone demo and Windows application
         run: pnpm build
       - name: Smoke-test packaged Electron application

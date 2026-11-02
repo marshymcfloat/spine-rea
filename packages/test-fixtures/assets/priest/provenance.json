@@ -1,0 +1,84 @@
+{
+  "name": "Original geometric priest technical fixture",
+  "authoredOn": "2026-11-02",
+  "origin": "Explicit original shape definitions authored for Slot Animation Studio with Codex assistance.",
+  "intendedUse": "Deterministic schema, layered attachment and weighted-mesh tests; not final game artwork.",
+  "externalAssets": [],
+  "generativeImageService": null,
+  "sources": [
+    {
+      "path": "scripts/priest-shapes.mjs",
+      "sha256": "8897c800f06ee056e577922c72b77d1553439ab0c2de9d8bdebba837365a7b78"
+    },
+    {
+      "path": "scripts/generate-priest-assets.mjs",
+      "sha256": "c261a315ff02ec5a028db7ccd6557e1deda761f954332e7428185a30243f4845"
+    }
+  ],
+  "rasterFormat": "PNG RGBA8; transparent background; fixed sample positions; filter 0; fixed-Huffman zlib.",
+  "assets": [
+    {
+      "path": "assets/priest/robe.png",
+      "width": 120,
+      "height": 160,
+      "sha256": "56cf770b64db3f355640f16aa57a4a00b0815e1dc805143af468498daa032190",
+      "purpose": "Weighted grid-mesh region; lower robe overlaps behind the torso."
+    },
+    {
+      "path": "assets/priest/torso.png",
+      "width": 80,
+      "height": 96,
+      "sha256": "d810eff224cca812c295606246b4fd6e70df98c02137f0ddd837fca6de953c62",
+      "purpose": "Opaque torso covers the upper robe and rear shoulder joint."
+    },
+    {
+      "path": "assets/priest/head.png",
+      "width": 64,
+      "height": 72,
+      "sha256": "8b845cecc7a6e708354d1e3f3e83d5d4a18fd8507cf53d841b3b323a42542e7b",
+      "purpose": "Separate head and neck permit rigid head rotation with covered joints."
+    },
+    {
+      "path": "assets/priest/upper-arm-left.png",
+      "width": 32,
+      "height": 80,
+      "sha256": "f1288606a3dc848ea8e74cc2a303494e34eaa83e1d42b4fec653a19f128b52d6",
+      "purpose": "Rear upper sleeve with joint overlap."
+    },
+    {
+      "path": "assets/priest/upper-arm-right.png",
+      "width": 32,
+      "height": 80,
+      "sha256": "f09b5a01ad330af7082ac859368db8f24522e030d57ceb0f7baa4072c585ec41",
+      "purpose": "Front upper sleeve with joint overlap."
+    },
+    {
+      "path": "assets/priest/forearm-left.png",
+      "width": 28,
+      "height": 70,
+      "sha256": "a26a11807ea8cee094017e055a94651f094166aefc3a4ab4ee7d1a64f5fa2216",
+      "purpose": "Separate rear forearm sleeve."
+    },
+    {
+      "path": "assets/priest/forearm-right.png",
+      "width": 28,
+      "height": 70,
+      "sha256": "04b6c0c8ffdf3431b5b96bc3afb37b4017cbf0b71e237f53523bb7b12e916c75",
+      "purpose": "Separate front forearm sleeve."
+    },
+    {
+      "path": "assets/priest/hand-left.png",
+      "width": 24,
+      "height": 30,
+      "sha256": "ce9fe70bbd2d13969ddc9be548e549f3b2b8a1bbc3e71fc51be99ec3cecb9f07",
+      "purpose": "Separate rear hand with covered wrist."
+    },
+    {
+      "path": "assets/priest/hand-right.png",
+      "width": 24,
+      "height": 30,
+      "sha256": "cecd23981a6b8fb652effb4735fad5ef2bdc94d93887a416889dfa569df52d9b",
+      "purpose": "Separate front hand with covered wrist."
+    }
+  ]
+}

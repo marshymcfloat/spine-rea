@@ -1,35 +1,40 @@
-# Slot Animation Studio: planned architecture
+# Slot Animation Studio: architecture
 
 Decision date: 2026-11-02. Product authority: [PRODUCT_PLAN.md](PRODUCT_PLAN.md).
 Working practices: [WORKFLOW.md](WORKFLOW.md).
 
 The repository implements the desktop foundation: `apps/desktop`,
 `apps/runtime-demo`, and reference viewport helpers in `@studio/runtime-pixi`.
-The skeleton/clip evaluator, schemas, compiler, authored editing, persistence, and
-animation-player interfaces below remain planned. Record consequential changes
-here; keep task status and execution evidence in Linear.
+It also implements strict project/runtime validation in `@studio/schema` and original
+priest data/art in `@studio/test-fixtures`; see [FORMATS.md](FORMATS.md).
+The skeleton/clip evaluator, compiler, authored editing, persistence and animation-player
+interfaces below remain planned. Record consequential changes here; keep task status
+and execution evidence in [Linear](https://linear.app/spine-rea/project/slot-animation-studio-07e39e20dfb5).
 
 ## Package responsibilities
 
 Use a TypeScript workspace with thin applications and independently testable packages.
 Create packages when their first implementation task needs them, not as empty scaffolds.
 
-| Application/package | Responsibility | Boundary |
-| --- | --- | --- |
-| `apps/desktop` | Electron main/preload, React editor, project commands, panels and interaction tools. | Renderer accesses local files only through validated preload operations. |
-| `apps/runtime-demo` | Standalone browser consumer of exported files. | Imports runtime packages; no editor internals or Electron. |
-| `@studio/schema` | Versioned authoring/runtime types, validation and explicit migrations. | No React, Electron, Pixi or filesystem dependency. |
-| `@studio/animation-core` | Local/world transforms, clip sampling, interpolation, mixing, marker crossing and CPU skinning. | Pure data/math; no renderer, DOM, I/O or wall-clock reads. |
-| `@studio/compiler` | Validates authoring data and produces runtime data and asset requirements. | No editor/UI dependency; filesystem writes remain a desktop service. |
-| `@studio/runtime-pixi` | Reference canvas guides and view fitting now; runtime loading/playback and evaluated geometry rendering later. | No React, Electron or authoring commands. |
-| `@studio/slot-events` | Later resolved-event mapping and deterministic sequence playback. | Presentation only; no outcome calculation or wagering logic. |
-| `@studio/test-fixtures` | Original small rigs, images, clips and expected results. | Reproducible data shared by parity tests and the demo. |
+| Application/package | Status | Responsibility | Boundary |
+| --- | --- | --- | --- |
+| `apps/desktop` | Foundation | Electron/preload, React workspace and reference view controls; authored editing follows. | Local I/O belongs behind validated preload operations; bridge currently reads app info only. |
+| `apps/runtime-demo` | Foundation | Independent browser reference canvas; exported animation loading follows. | Runtime packages only; no editor internals or Electron. |
+| `@studio/schema` | Implemented | Strict versioned authoring/runtime types and validation. | Zod/data only; no React, Electron, Pixi or filesystem access. |
+| `@studio/animation-core` | Planned | Transforms, clip sampling, interpolation, mixing, markers and CPU skinning. | Pure data/math; no renderer, DOM, I/O or wall clock. |
+| `@studio/compiler` | Planned | Authoring-to-runtime conversion and asset requirements. | No editor/UI dependency; desktop services write files. |
+| `@studio/runtime-pixi` | Foundation | Reference guides/view fitting; animated geometry rendering follows. | No React, Electron or authoring commands. |
+| `@studio/slot-events` | Planned | Resolved-event mapping and deterministic sequences. | Presentation only; no outcome/wagering logic. |
+| `@studio/test-fixtures` | Implemented | Original PNG layers, validated priest documents, cloned constructors and deterministic regeneration. | Technical test inputs/provenance, without a compiler or evaluator. |
 
 Desktop services own dialogs, asset import, atomic writes, backups and export output.
 Keep those services separate from React components and pure packages.
 The editor's authored model is serializable data; Pixi objects are derived view state.
 
 ## Data and rendering flow
+
+The following is the target authoring/playback flow; its compiler, evaluator and
+project filesystem services are not implemented by the current schema/fixture packages.
 
 ```text
 PNG files → desktop import service → project-owned source assets
@@ -49,6 +54,9 @@ selection, bones and weights without entering the exported render data.
 
 ### Project and export contract
 
+The implemented JSON structures and validation/version policy are in [FORMATS.md](FORMATS.md).
+Folder persistence, migration services and export packaging below remain planned.
+
 - Authoring projects are human-readable `.slotstudio` directories with a manifest, JSON data and copied source assets.
 - Use stable identifiers and project-relative asset paths; names are editable labels, not identity.
 - Keep project and runtime schema versions explicit and independent of application release versions.
@@ -58,8 +66,8 @@ selection, bones and weights without entering the exported render data.
 - Autosave drafts and backups are separate from the last successful explicit save; recovery never overwrites that save silently.
 - Later atlas packing remaps UVs and asset references, without changing bind vertices or sampled bone transforms.
 
-Freeze the initial field-level schemas with a minimal weighted fixture at Gate 1.
-Do not imply support for foreign project formats or `.skel` compatibility.
+Initial project/runtime JSON version 1 is implemented with a weighted fixture.
+No migration, foreign project import or `.skel` compatibility is implemented.
 
 ## Skeleton and weighted meshes
 
@@ -165,3 +173,12 @@ All decisions below were accepted on 2026-11-02; revise with dated rationale whe
 - Use pnpm's hoisted linker for Forge compatibility and resolve real paths/deduplicate Pixi in the renderer. This keeps the shared guides and host on one Pixi instance, including its strict-CSP polyfill.
 - Initialize Pixi in each host, use the shared guides module in desktop and browser, and render on view changes rather than running an idle animation ticker. The reference artboard does not establish a project/export schema.
 - Run type/unit checks and packaged Electron smoke tests in Windows CI. Installer creation remains a separate task.
+
+### Data contract implementation: 2026-11-02
+
+- Use separate literal project/runtime format identifiers and version constants. Both start at version 1; unsupported versions and unknown fields fail validation. No automatic migrations are provided.
+- Validate data with Zod in `@studio/schema`, without renderer/UI/filesystem dependencies. Expose throwing and safe-parse entry points with field-path errors; preserve supplied IDs/names and array order.
+- Store complete local setup transforms and absolute local clip channels; use seconds and unwrapped radians. Setup scales are nonzero; animated scales may reach zero. Keep region pivots in image pixels and mesh vertices in rig bind space.
+- Reject broken references, bone cycles, invalid triangles, duplicate/unnormalized weights and malformed tracks/markers. Validation does not silently repair input. PNG existence/content checks are fixture evidence, not schema I/O.
+- Keep attachment draw order explicit and independent of hierarchy. Store mesh influences rather than inverse-bind matrices; the future evaluator derives those matrices from setup transforms.
+- Provide original nine-layer geometric priest art, source/output hashes and byte-reproducible Node generators. The validated 12-bone/weighted-robe documents and five technical clip inputs are independently cloned for callers; they do not establish evaluation, compiler output or visual parity.

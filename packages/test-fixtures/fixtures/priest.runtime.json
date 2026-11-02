@@ -1,0 +1,1268 @@
+{
+  "format": "slotstudio-runtime",
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "asset-priest-robe",
+      "path": "assets/priest/robe.png",
+      "width": 120,
+      "height": 160,
+      "mimeType": "image/png"
+    },
+    {
+      "id": "asset-priest-torso",
+      "path": "assets/priest/torso.png",
+      "width": 80,
+      "height": 96,
+      "mimeType": "image/png"
+    },
+    {
+      "id": "asset-priest-head",
+      "path": "assets/priest/head.png",
+      "width": 64,
+      "height": 72,
+      "mimeType": "image/png"
+    },
+    {
+      "id": "asset-priest-upper-arm-left",
+      "path": "assets/priest/upper-arm-left.png",
+      "width": 32,
+      "height": 80,
+      "mimeType": "image/png"
+    },
+    {
+      "id": "asset-priest-upper-arm-right",
+      "path": "assets/priest/upper-arm-right.png",
+      "width": 32,
+      "height": 80,
+      "mimeType": "image/png"
+    },
+    {
+      "id": "asset-priest-forearm-left",
+      "path": "assets/priest/forearm-left.png",
+      "width": 28,
+      "height": 70,
+      "mimeType": "image/png"
+    },
+    {
+      "id": "asset-priest-forearm-right",
+      "path": "assets/priest/forearm-right.png",
+      "width": 28,
+      "height": 70,
+      "mimeType": "image/png"
+    },
+    {
+      "id": "asset-priest-hand-left",
+      "path": "assets/priest/hand-left.png",
+      "width": 24,
+      "height": 30,
+      "mimeType": "image/png"
+    },
+    {
+      "id": "asset-priest-hand-right",
+      "path": "assets/priest/hand-right.png",
+      "width": 24,
+      "height": 30,
+      "mimeType": "image/png"
+    }
+  ],
+  "rigs": [
+    {
+      "id": "rig-priest",
+      "name": "Geometric priest",
+      "bones": [
+        {
+          "id": "root",
+          "name": "Root",
+          "parentId": null,
+          "setup": {
+            "x": 160,
+            "y": 180,
+            "rotation": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          }
+        },
+        {
+          "id": "torso",
+          "name": "Torso",
+          "parentId": "root",
+          "setup": {
+            "x": 0,
+            "y": 0,
+            "rotation": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          }
+        },
+        {
+          "id": "head",
+          "name": "Head",
+          "parentId": "torso",
+          "setup": {
+            "x": 0,
+            "y": -6,
+            "rotation": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          }
+        },
+        {
+          "id": "upper-arm-right",
+          "name": "Right upper arm",
+          "parentId": "torso",
+          "setup": {
+            "x": 32,
+            "y": 12,
+            "rotation": 0.12,
+            "scaleX": 1,
+            "scaleY": 1
+          }
+        },
+        {
+          "id": "forearm-right",
+          "name": "Right forearm",
+          "parentId": "upper-arm-right",
+          "setup": {
+            "x": 0,
+            "y": 59,
+            "rotation": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          }
+        },
+        {
+          "id": "hand-right",
+          "name": "Right hand",
+          "parentId": "forearm-right",
+          "setup": {
+            "x": 0,
+            "y": 54,
+            "rotation": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          }
+        },
+        {
+          "id": "upper-arm-left",
+          "name": "Left upper arm",
+          "parentId": "torso",
+          "setup": {
+            "x": -32,
+            "y": 12,
+            "rotation": -0.12,
+            "scaleX": 1,
+            "scaleY": 1
+          }
+        },
+        {
+          "id": "forearm-left",
+          "name": "Left forearm",
+          "parentId": "upper-arm-left",
+          "setup": {
+            "x": 0,
+            "y": 59,
+            "rotation": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          }
+        },
+        {
+          "id": "hand-left",
+          "name": "Left hand",
+          "parentId": "forearm-left",
+          "setup": {
+            "x": 0,
+            "y": 54,
+            "rotation": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          }
+        },
+        {
+          "id": "robe-top",
+          "name": "Robe top",
+          "parentId": "root",
+          "setup": {
+            "x": 0,
+            "y": 64,
+            "rotation": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          }
+        },
+        {
+          "id": "robe-mid",
+          "name": "Robe middle",
+          "parentId": "robe-top",
+          "setup": {
+            "x": 0,
+            "y": 80,
+            "rotation": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          }
+        },
+        {
+          "id": "robe-hem",
+          "name": "Robe hem",
+          "parentId": "robe-mid",
+          "setup": {
+            "x": 0,
+            "y": 80,
+            "rotation": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          }
+        }
+      ],
+      "attachments": [
+        {
+          "type": "region",
+          "id": "torso",
+          "name": "Torso",
+          "assetId": "asset-priest-torso",
+          "boneId": "torso",
+          "pivot": {
+            "x": 40,
+            "y": 16
+          },
+          "transform": {
+            "x": 0,
+            "y": 0,
+            "rotation": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          },
+          "opacity": 1
+        },
+        {
+          "type": "region",
+          "id": "head",
+          "name": "Head",
+          "assetId": "asset-priest-head",
+          "boneId": "head",
+          "pivot": {
+            "x": 32,
+            "y": 66
+          },
+          "transform": {
+            "x": 0,
+            "y": 0,
+            "rotation": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          },
+          "opacity": 1
+        },
+        {
+          "type": "region",
+          "id": "upper-arm-right",
+          "name": "Front upper sleeve",
+          "assetId": "asset-priest-upper-arm-right",
+          "boneId": "upper-arm-right",
+          "pivot": {
+            "x": 16,
+            "y": 14
+          },
+          "transform": {
+            "x": 0,
+            "y": 0,
+            "rotation": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          },
+          "opacity": 1
+        },
+        {
+          "type": "region",
+          "id": "forearm-right",
+          "name": "Front forearm",
+          "assetId": "asset-priest-forearm-right",
+          "boneId": "forearm-right",
+          "pivot": {
+            "x": 14,
+            "y": 11
+          },
+          "transform": {
+            "x": 0,
+            "y": 0,
+            "rotation": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          },
+          "opacity": 1
+        },
+        {
+          "type": "region",
+          "id": "hand-right",
+          "name": "Front hand",
+          "assetId": "asset-priest-hand-right",
+          "boneId": "hand-right",
+          "pivot": {
+            "x": 12,
+            "y": 5
+          },
+          "transform": {
+            "x": 0,
+            "y": 0,
+            "rotation": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          },
+          "opacity": 1
+        },
+        {
+          "type": "region",
+          "id": "upper-arm-left",
+          "name": "Rear upper sleeve",
+          "assetId": "asset-priest-upper-arm-left",
+          "boneId": "upper-arm-left",
+          "pivot": {
+            "x": 16,
+            "y": 14
+          },
+          "transform": {
+            "x": 0,
+            "y": 0,
+            "rotation": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          },
+          "opacity": 1
+        },
+        {
+          "type": "region",
+          "id": "forearm-left",
+          "name": "Rear forearm",
+          "assetId": "asset-priest-forearm-left",
+          "boneId": "forearm-left",
+          "pivot": {
+            "x": 14,
+            "y": 11
+          },
+          "transform": {
+            "x": 0,
+            "y": 0,
+            "rotation": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          },
+          "opacity": 1
+        },
+        {
+          "type": "region",
+          "id": "hand-left",
+          "name": "Rear hand",
+          "assetId": "asset-priest-hand-left",
+          "boneId": "hand-left",
+          "pivot": {
+            "x": 12,
+            "y": 5
+          },
+          "transform": {
+            "x": 0,
+            "y": 0,
+            "rotation": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          },
+          "opacity": 1
+        },
+        {
+          "type": "mesh",
+          "id": "robe",
+          "name": "Weighted robe",
+          "assetId": "asset-priest-robe",
+          "opacity": 1,
+          "vertices": [
+            {
+              "x": 100,
+              "y": 244,
+              "u": 0,
+              "v": 0,
+              "influences": [
+                {
+                  "boneId": "robe-top",
+                  "weight": 1
+                }
+              ]
+            },
+            {
+              "x": 160,
+              "y": 244,
+              "u": 0.5,
+              "v": 0,
+              "influences": [
+                {
+                  "boneId": "robe-top",
+                  "weight": 1
+                }
+              ]
+            },
+            {
+              "x": 220,
+              "y": 244,
+              "u": 1,
+              "v": 0,
+              "influences": [
+                {
+                  "boneId": "robe-top",
+                  "weight": 1
+                }
+              ]
+            },
+            {
+              "x": 100,
+              "y": 324,
+              "u": 0,
+              "v": 0.5,
+              "influences": [
+                {
+                  "boneId": "robe-top",
+                  "weight": 0.25
+                },
+                {
+                  "boneId": "robe-mid",
+                  "weight": 0.75
+                }
+              ]
+            },
+            {
+              "x": 160,
+              "y": 324,
+              "u": 0.5,
+              "v": 0.5,
+              "influences": [
+                {
+                  "boneId": "robe-top",
+                  "weight": 0.25
+                },
+                {
+                  "boneId": "robe-mid",
+                  "weight": 0.75
+                }
+              ]
+            },
+            {
+              "x": 220,
+              "y": 324,
+              "u": 1,
+              "v": 0.5,
+              "influences": [
+                {
+                  "boneId": "robe-top",
+                  "weight": 0.25
+                },
+                {
+                  "boneId": "robe-mid",
+                  "weight": 0.75
+                }
+              ]
+            },
+            {
+              "x": 100,
+              "y": 404,
+              "u": 0,
+              "v": 1,
+              "influences": [
+                {
+                  "boneId": "robe-mid",
+                  "weight": 0.25
+                },
+                {
+                  "boneId": "robe-hem",
+                  "weight": 0.75
+                }
+              ]
+            },
+            {
+              "x": 160,
+              "y": 404,
+              "u": 0.5,
+              "v": 1,
+              "influences": [
+                {
+                  "boneId": "robe-mid",
+                  "weight": 0.25
+                },
+                {
+                  "boneId": "robe-hem",
+                  "weight": 0.75
+                }
+              ]
+            },
+            {
+              "x": 220,
+              "y": 404,
+              "u": 1,
+              "v": 1,
+              "influences": [
+                {
+                  "boneId": "robe-mid",
+                  "weight": 0.25
+                },
+                {
+                  "boneId": "robe-hem",
+                  "weight": 0.75
+                }
+              ]
+            }
+          ],
+          "triangles": [
+            0,
+            1,
+            3,
+            1,
+            4,
+            3,
+            1,
+            2,
+            4,
+            2,
+            5,
+            4,
+            3,
+            4,
+            6,
+            4,
+            7,
+            6,
+            4,
+            5,
+            7,
+            5,
+            8,
+            7
+          ]
+        }
+      ],
+      "drawOrder": [
+        "upper-arm-left",
+        "forearm-left",
+        "hand-left",
+        "robe",
+        "torso",
+        "head",
+        "upper-arm-right",
+        "forearm-right",
+        "hand-right"
+      ]
+    }
+  ],
+  "clips": [
+    {
+      "id": "clip-idle",
+      "name": "priest_idle",
+      "rigId": "rig-priest",
+      "duration": 2,
+      "loop": true,
+      "tracks": [
+        {
+          "kind": "bone",
+          "boneId": "torso",
+          "channel": "y",
+          "keys": [
+            {
+              "time": 0,
+              "value": 0,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 1,
+              "value": -2,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 2,
+              "value": 0,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            }
+          ]
+        },
+        {
+          "kind": "bone",
+          "boneId": "head",
+          "channel": "rotation",
+          "keys": [
+            {
+              "time": 0,
+              "value": 0,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 1,
+              "value": 0.015,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 2,
+              "value": 0,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            }
+          ]
+        },
+        {
+          "kind": "bone",
+          "boneId": "robe-mid",
+          "channel": "rotation",
+          "keys": [
+            {
+              "time": 0,
+              "value": 0,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 1,
+              "value": 0.025,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 2,
+              "value": 0,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            }
+          ]
+        },
+        {
+          "kind": "bone",
+          "boneId": "robe-hem",
+          "channel": "rotation",
+          "keys": [
+            {
+              "time": 0,
+              "value": 0,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 1,
+              "value": -0.02,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 2,
+              "value": 0,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            }
+          ]
+        }
+      ],
+      "markers": []
+    },
+    {
+      "id": "clip-pray",
+      "name": "priest_pray",
+      "rigId": "rig-priest",
+      "duration": 1.2,
+      "loop": false,
+      "tracks": [
+        {
+          "kind": "bone",
+          "boneId": "upper-arm-right",
+          "channel": "rotation",
+          "keys": [
+            {
+              "time": 0,
+              "value": 0.12,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 0.6,
+              "value": 0.8,
+              "easing": {
+                "type": "hold"
+              }
+            },
+            {
+              "time": 1.2,
+              "value": 0.8,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            }
+          ]
+        },
+        {
+          "kind": "bone",
+          "boneId": "upper-arm-left",
+          "channel": "rotation",
+          "keys": [
+            {
+              "time": 0,
+              "value": -0.12,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 0.6,
+              "value": -0.8,
+              "easing": {
+                "type": "hold"
+              }
+            },
+            {
+              "time": 1.2,
+              "value": -0.8,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            }
+          ]
+        },
+        {
+          "kind": "bone",
+          "boneId": "forearm-right",
+          "channel": "rotation",
+          "keys": [
+            {
+              "time": 0,
+              "value": 0,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 0.6,
+              "value": 1,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 1.2,
+              "value": 1,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            }
+          ]
+        },
+        {
+          "kind": "bone",
+          "boneId": "forearm-left",
+          "channel": "rotation",
+          "keys": [
+            {
+              "time": 0,
+              "value": 0,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 0.6,
+              "value": -1,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 1.2,
+              "value": -1,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            }
+          ]
+        }
+      ],
+      "markers": [
+        {
+          "id": "marker-pray-hold",
+          "name": "prayer_hold",
+          "time": 0.6,
+          "data": {
+            "phase": "hold"
+          }
+        }
+      ]
+    },
+    {
+      "id": "clip-kneel",
+      "name": "priest_kneel",
+      "rigId": "rig-priest",
+      "duration": 1.6,
+      "loop": false,
+      "tracks": [
+        {
+          "kind": "bone",
+          "boneId": "root",
+          "channel": "y",
+          "keys": [
+            {
+              "time": 0,
+              "value": 180,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 0.8,
+              "value": 250,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 1.6,
+              "value": 180,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            }
+          ]
+        },
+        {
+          "kind": "bone",
+          "boneId": "torso",
+          "channel": "rotation",
+          "keys": [
+            {
+              "time": 0,
+              "value": 0,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 0.8,
+              "value": 0.12,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 1.6,
+              "value": 0,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            }
+          ]
+        },
+        {
+          "kind": "bone",
+          "boneId": "robe-mid",
+          "channel": "rotation",
+          "keys": [
+            {
+              "time": 0,
+              "value": 0,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 0.8,
+              "value": -0.2,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 1.6,
+              "value": 0,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            }
+          ]
+        }
+      ],
+      "markers": [
+        {
+          "id": "marker-kneel-low",
+          "name": "kneel_low",
+          "time": 0.8
+        }
+      ]
+    },
+    {
+      "id": "clip-praise",
+      "name": "priest_praise",
+      "rigId": "rig-priest",
+      "duration": 1.4,
+      "loop": false,
+      "tracks": [
+        {
+          "kind": "bone",
+          "boneId": "upper-arm-right",
+          "channel": "rotation",
+          "keys": [
+            {
+              "time": 0,
+              "value": 0.12,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 0.5,
+              "value": 2.2,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 1.4,
+              "value": 0.12,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            }
+          ]
+        },
+        {
+          "kind": "bone",
+          "boneId": "upper-arm-left",
+          "channel": "rotation",
+          "keys": [
+            {
+              "time": 0,
+              "value": -0.12,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 0.5,
+              "value": -2.2,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 1.4,
+              "value": -0.12,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            }
+          ]
+        }
+      ],
+      "markers": [
+        {
+          "id": "marker-praise-peak",
+          "name": "praise_peak",
+          "time": 0.5,
+          "data": {
+            "cue": "large-win"
+          }
+        }
+      ]
+    },
+    {
+      "id": "clip-entity",
+      "name": "priest_entity",
+      "rigId": "rig-priest",
+      "duration": 1.8,
+      "loop": false,
+      "tracks": [
+        {
+          "kind": "bone",
+          "boneId": "root",
+          "channel": "x",
+          "keys": [
+            {
+              "time": 0,
+              "value": 160,
+              "easing": {
+                "type": "linear"
+              }
+            },
+            {
+              "time": 0.2,
+              "value": 156,
+              "easing": {
+                "type": "linear"
+              }
+            },
+            {
+              "time": 0.4,
+              "value": 164,
+              "easing": {
+                "type": "linear"
+              }
+            },
+            {
+              "time": 0.6,
+              "value": 160,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 1.8,
+              "value": 160,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            }
+          ]
+        },
+        {
+          "kind": "bone",
+          "boneId": "torso",
+          "channel": "rotation",
+          "keys": [
+            {
+              "time": 0,
+              "value": 0,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 0.6,
+              "value": -0.08,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            },
+            {
+              "time": 1.8,
+              "value": 0,
+              "easing": {
+                "type": "bezier",
+                "x1": 0.25,
+                "y1": 0.1,
+                "x2": 0.25,
+                "y2": 1
+              }
+            }
+          ]
+        },
+        {
+          "kind": "attachment",
+          "attachmentId": "robe",
+          "channel": "opacity",
+          "keys": [
+            {
+              "time": 0,
+              "value": 1,
+              "easing": {
+                "type": "linear"
+              }
+            },
+            {
+              "time": 0.6,
+              "value": 0.85,
+              "easing": {
+                "type": "linear"
+              }
+            },
+            {
+              "time": 1.8,
+              "value": 1,
+              "easing": {
+                "type": "linear"
+              }
+            }
+          ]
+        }
+      ],
+      "markers": [
+        {
+          "id": "marker-altar-cue",
+          "name": "altar_cue",
+          "time": 0.6,
+          "data": {
+            "effectId": "placeholder-altar"
+          }
+        }
+      ]
+    }
+  ]
+}

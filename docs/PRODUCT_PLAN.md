@@ -3,11 +3,12 @@
 Accepted direction: 2026-11-02. First customer: The Ninth Rite production team.
 
 This document defines the accepted product scope. The repository currently contains
-the development harness and desktop/canvas foundation; the authoring and playback
-features below remain planned.
+the development harness, desktop/canvas foundation, validated project/runtime contracts
+and original technical priest fixtures. Authoring, evaluation, persistence and playback
+features below remain planned; [FORMATS.md](FORMATS.md) describes the implemented data contracts.
 Implementation decisions belong in [ARCHITECTURE.md](ARCHITECTURE.md).
 Execution follows [WORKFLOW.md](WORKFLOW.md), with task status in
-[Linear](https://linear.app/serviceflow/project/slot-animation-studio-baaf385fd9f6).
+[Linear](https://linear.app/spine-rea/project/slot-animation-studio-07e39e20dfb5).
 
 ## Product outcome
 

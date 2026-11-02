@@ -1,0 +1,14 @@
+{
+  "name": "@studio/test-fixtures",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "generate:assets": "node scripts/generate-priest-assets.mjs",
+    "check:assets": "node scripts/generate-priest-assets.mjs --check",
+    "generate:documents": "node scripts/generate-priest-documents.mjs",
+    "check:documents": "node scripts/generate-priest-documents.mjs --check"
+  },
+  "dependencies": { "@studio/schema": "workspace:*" }
+}

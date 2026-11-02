@@ -2,18 +2,20 @@
 
 An offline-first Windows editor for layered 2D rigs, weighted meshes, and slot-game presentation, initially for The Ninth Rite.
 
-This repository contains the development harness and the desktop foundation: an Electron/React workspace with a PixiJS reference canvas, working view controls, a restricted read-only desktop bridge, and a standalone browser demo. Rig, mesh, timeline, project persistence, and animation export tools remain planned.
+This repository implements an Electron/React workspace with a PixiJS reference canvas, working view controls, a restricted read-only desktop bridge, and a standalone browser demo. It also provides validated project/runtime data contracts and original layered priest test fixtures. Bone evaluation, mesh playback, timeline editing, project persistence, and export compilation remain planned; the applications still display reference guides.
 
 ## Start here
 
 - [Agent instructions](AGENTS.md)
 - [Product plan and acceptance gates](docs/PRODUCT_PLAN.md)
 - [Architecture and technical decisions](docs/ARCHITECTURE.md)
+- [Implemented data formats](docs/FORMATS.md)
+- [Original priest fixtures and provenance](packages/test-fixtures/README.md)
 - [Work, review, and handoff process](docs/WORKFLOW.md)
-- [Linear project](https://linear.app/serviceflow/project/slot-animation-studio-baaf385fd9f6)
+- [Linear project](https://linear.app/spine-rea/project/slot-animation-studio-07e39e20dfb5)
 - [Private GitHub repository](https://github.com/marshymcfloat/slot-animation-studio)
 
-Linear is authoritative for task status. Start from its active issues and dependency-ready Todo issues. The [harness issue](https://linear.app/serviceflow/issue/SER-71/establish-and-verify-the-development-harness) records setup evidence; [workspace and desktop shell](https://linear.app/serviceflow/issue/SER-72/scaffold-the-package-workspace-and-desktop-shell) is the first application implementation task.
+Linear is authoritative for task status. Start from its active issues and dependency-ready Todo issues. Bootstrap evidence is linked from the [harness](https://linear.app/spine-rea/issue/SPI-5), [desktop foundation](https://linear.app/spine-rea/issue/SPI-6), and [data contracts/fixtures](https://linear.app/spine-rea/issue/SPI-7) issues.
 
 ## Prerequisites
 
@@ -46,6 +48,8 @@ pnpm dev
 | `pnpm build` | Build the browser demo and package a portable Windows x64 Electron application |
 | `pnpm test:desktop` | Run the packaged-application smoke test after `pnpm build` |
 | `pnpm check:harness` | Validate the repository documentation and setup |
+| `pnpm --filter @studio/test-fixtures check:assets` | Verify original PNG layers and provenance against their deterministic source |
+| `pnpm --filter @studio/test-fixtures check:documents` | Verify the committed project/runtime JSON samples against their fixture source |
 
 The portable application is `apps/desktop/out/slot-animation-studio-win32-x64/slot-animation-studio.exe`. The browser build is under `apps/runtime-demo/dist`. Both are generated outputs and excluded from Git. This stage produces a portable application; installer distribution is tracked separately.
 
@@ -63,6 +67,11 @@ pwsh -NoProfile -File ./scripts/check-harness.ps1 -CheckEnvironment
 The script resolves its repository from its own location, so it can also be invoked by absolute path from another directory. It validates required files and repository Markdown links and reports local tool diagnostics. It makes no installs or network calls.
 
 The [documentation workflow](.github/workflows/harness.yml) runs the default check on pushes and pull requests and supports manual runs.
+
+Schema and fixture unit tests run with `pnpm test`; the fixture check commands above
+read and compare outputs without rewriting them. Regeneration commands and authorship
+details are in the fixture package README. Its five named clip samples test the data
+contract and do not establish completed priest animations or runtime parity.
 
 ## Scope
 
