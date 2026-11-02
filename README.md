@@ -62,6 +62,12 @@ The portable application is `apps/desktop/out/slot-animation-studio-win32-x64/sl
 
 The [application workflow](.github/workflows/application.yml) installs the frozen lockfile, type-checks, runs unit tests, builds both applications, and checks the packaged Electron and standalone Edge previews on Windows. Tests use the packaged executable and installed Edge without downloading another browser, and save evidence under `test-results/`. Install Edge locally for the browser checks. Profiling is an explicit local diagnostic, not a noisy timing gate on shared CI hardware; follow [PERFORMANCE.md](docs/PERFORMANCE.md).
 
+Functional transport checks use controlled host time while rendering real geometry.
+They do not measure FPS. The profiler uses native time, validates real foreground
+state and preserves failed captures. Browser profiling opens an isolated Edge window;
+leave it in front during a capture. Desktop tests, browser tests and performance
+records have separate output directories.
+
 ## Run checks
 
 From the repository root:

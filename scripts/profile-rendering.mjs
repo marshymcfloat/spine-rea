@@ -18,6 +18,7 @@ const buildRoot = resolve(option('--build-root', root));
 const host = option('--host', 'desktop');
 const baseline = args.includes('--baseline');
 const tracing = !args.includes('--no-trace');
+const pinWindow = args.includes('--pin-window');
 const seconds = Number(option('--seconds', baseline ? '5' : '30'));
 const runs = Number(option('--runs', baseline ? '1' : '3'));
 const stressGridSide = Number(option('--stress', '0'));
@@ -164,7 +165,8 @@ try {
     page = await application.firstWindow();
     listenForErrors(page);
     const window = await application.browserWindow(page);
-    await window.evaluate((target) => { target.setSize(1440, 960); target.show(); target.focus(); });
+    await window.evaluate((target, pin) => { target.setSize(1440, 960); target.setAlwaysOnTop(pin); target.show(); target.focus(); }, pinWindow);
+    report.methodology.windowPinned = pinWindow;
     await page.waitForURL('app://studio/index.html');
     await page.waitForLoadState('load');
     await page.reload();

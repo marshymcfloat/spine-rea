@@ -135,6 +135,10 @@ For a useful capture:
 - Use a packaged release or a release-equivalent local diagnostic build; measure the
   standalone browser separately. Record commit, Windows/CPU/GPU/RAM, drivers, power mode,
   Electron/Chromium/Pixi versions, display refresh, viewport, DPR and renderer resolution.
+- Separate deterministic functional checks from native cadence measurements. Automation
+  can emulate page visibility/focus and change background scheduling. Record launch
+  settings, use real foreground state for physical captures, and preserve/reject captures
+  that lose focus or become hidden. A forced visible DOM flag does not prove an unoccluded window.
 - Use the priest fixture for playback/crossfades/markers and interactions available at
   the current stage. Add a reproducible bounded stress fixture with recorded rig, bone,
   track/key, vertex, influence, attachment, texture-size and draw-call counts. The
@@ -167,3 +171,11 @@ steps, warm-up/runs, before/after metrics, trace links, bottleneck/fix and remai
 Record lifecycle and correctness/parity evidence alongside speed changes. A new path
 records its first baseline and target comparison. Mark missing measurements explicitly;
 never describe code as optimized, leak-free or 60 FPS based only on compilation or a smoke test.
+
+The local browser profiler starts an isolated native Edge process and attaches with
+Playwright `noDefaults`; it avoids the normal launch/focus overrides. `--no-trace`
+captures phase/cadence samples without trace overhead and makes no trace-confirmed
+dropped-frame claim. `--pin-window` keeps only the owned desktop diagnostic window
+on top. Foreground acquisition uses Node-side polling so a paused/hidden renderer's
+animation-frame or timer scheduling cannot masquerade as a readiness failure.
+Keep all failed/contended runs alongside successful runs and label their validity.
