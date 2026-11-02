@@ -82,6 +82,26 @@ describe('weighted geometry', () => {
     expectPositions(output.attachments[0]!.positions, [13, 20, 14, 20, 10, 24]);
   });
 
+  it('cancels large bind translations before weighting small representable local offsets', () => {
+    const document = geometryDocument();
+    const rig = document.rigs[0]!;
+    const origin = 1e16;
+    rig.bones = ['a', 'b'].map((id) => ({ id, name: id, parentId: null, setup: transform({ x: origin }) }));
+    const mesh = meshOf(document);
+    mesh.vertices = [[origin + 2, 0], [origin + 4, 0], [origin + 2, 1]].map(([x, y], index) => ({
+      x: x!, y: y!, u: index === 1 ? 1 : 0, v: index === 2 ? 1 : 0,
+      influences: [{ boneId: 'a', weight: .1 }, { boneId: 'b', weight: .9 }],
+    }));
+    rig.attachments = [mesh];
+    rig.drawOrder = [mesh.id];
+    const geometry = createGeometryEvaluator(document, 'rig');
+    const output = geometry.createOutput();
+    const pose = createRigEvaluator(document, 'rig').setupPose();
+    for (const item of pose.bones) item.world.tx = 0;
+    geometry.write(pose, output);
+    expect([...output.attachments[0]!.positions]).toEqual([2, 0, 4, 0, 2, 1]);
+  });
+
   it('supports four influences and leaves validated weights unnormalized', () => {
     const document = geometryDocument();
     document.rigs[0]!.bones.push({ id: 'fourth', name: 'Fourth', parentId: null, setup: transform() });

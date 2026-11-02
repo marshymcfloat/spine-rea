@@ -72,7 +72,7 @@ function inverseBind(matrix: AffineMatrix, boneId: string): AffineMatrix {
 }
 
 function compileAttachment(
-  attachment: Attachment, assets: Map<string, Asset>, boneIndices: Map<string, number>, inverses: AffineMatrix[],
+  attachment: Attachment, assets: Map<string, Asset>, boneIndices: Map<string, number>, inverses: AffineMatrix[], binds: AffineMatrix[],
 ): CompiledAttachment {
   const vertexCount = attachment.type === 'mesh' ? attachment.vertices.length : 4;
   let influenceCount = 4;
@@ -117,12 +117,17 @@ function compileAttachment(
         if (weight === 0) continue;
         const index = boneIndices.get(influence.boneId)!;
         const inverse = inverses[index]!;
+        const bind = binds[index]!;
         const x = vertex.x * weight;
         const y = vertex.y * weight;
+        const dx = vertex.x - bind.tx;
+        const dy = vertex.y - bind.ty;
+        const localX = inverse.a * dx + inverse.c * dy;
+        const localY = inverse.b * dx + inverse.d * dy;
         result.boneIndices[cursor] = index;
         result.weights[cursor] = weight;
-        result.weightedX[cursor] = inverse.a * x + inverse.c * y + inverse.tx * weight;
-        result.weightedY[cursor] = inverse.b * x + inverse.d * y + inverse.ty * weight;
+        result.weightedX[cursor] = Number.isFinite(localX) ? localX * weight : inverse.a * x + inverse.c * y + inverse.tx * weight;
+        result.weightedY[cursor] = Number.isFinite(localY) ? localY * weight : inverse.b * x + inverse.d * y + inverse.ty * weight;
         cursor++;
       }
     }
@@ -145,7 +150,8 @@ export function createGeometryEvaluator(input: unknown, rigId: string): Geometry
   const inverseBinds = setup.bones.map((bone) => inverseBind(bone.world, bone.id));
   const boneIndices = new Map(rig.bones.map((bone, index) => [bone.id, index]));
   const assets = new Map(document.assets.map((asset) => [asset.id, asset]));
-  const compiled = rig.attachments.map((attachment) => compileAttachment(attachment, assets, boneIndices, inverseBinds));
+  const binds = setup.bones.map((bone) => bone.world);
+  const compiled = rig.attachments.map((attachment) => compileAttachment(attachment, assets, boneIndices, inverseBinds, binds));
   const worlds = new Float64Array(rig.bones.length * 6);
   const opacities = new Float64Array(compiled.length);
   const outputs = new WeakMap<RigGeometryFrame, OwnedOutput>();
