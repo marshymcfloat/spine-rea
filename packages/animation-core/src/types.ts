@@ -37,6 +37,31 @@ export interface RigEvaluator {
   blend(from: EvaluatedPose, to: EvaluatedPose, alpha: number): EvaluatedPose;
 }
 
+/** Caller-owned render data. UVs/indices and identity fields are fixed for this revision. */
+export interface AttachmentGeometry {
+  readonly id: string;
+  readonly assetId: string;
+  readonly type: 'region' | 'mesh';
+  readonly positions: Float32Array;
+  readonly uvs: Float32Array;
+  readonly indices: Uint32Array;
+  opacity: number;
+}
+
+export interface RigGeometryFrame {
+  readonly rigId: string;
+  readonly attachments: readonly AttachmentGeometry[];
+  readonly drawOrder: readonly string[];
+}
+
+export interface GeometryEvaluator {
+  readonly rigId: string;
+  /** Independent buffers for one consumer. Never shared with another output. */
+  createOutput(): RigGeometryFrame;
+  /** Reuse a frame created by this evaluator. Invalid input must not partially write it. */
+  write(pose: EvaluatedPose, output: RigGeometryFrame): void;
+}
+
 export interface PlayOptions {
   loop?: boolean;
   crossfadeSeconds?: number;
