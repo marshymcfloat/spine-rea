@@ -25,11 +25,15 @@ export async function checkPreview(page: Page) {
   await expect.poll(async () => (await snapshot(page)).state.elapsedSeconds).toBeGreaterThan(.05);
   await page.getByLabel('Playback speed', { exact: true }).selectOption('2');
   expect((await snapshot(page)).state.speed).toBe(2);
+  await page.getByLabel('Playback speed', { exact: true }).selectOption('0');
   await page.getByLabel('Crossfade duration', { exact: true }).selectOption('2');
   await page.getByLabel('Animation clip', { exact: true }).selectOption('clip-pray');
   const fading = await snapshot(page);
   expect(fading.state.clipId).toBe('clip-pray');
-  expect(fading.state.mixProgress).toBeLessThan(1);
+  expect(fading.state.mixProgress).toBe(0);
+  expect(fading.counts.rafScheduled).toBe(false);
+  await page.getByLabel('Playback speed', { exact: true }).selectOption('0.5');
+  await expect.poll(async () => (await snapshot(page)).state.mixProgress).toBeGreaterThan(0);
   await page.getByRole('button', { name: 'Pause', exact: true }).click();
   const paused = await snapshot(page);
   await page.waitForTimeout(150);
