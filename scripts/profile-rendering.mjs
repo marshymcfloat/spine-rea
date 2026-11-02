@@ -150,6 +150,8 @@ try {
     listenForErrors(page);
     const window = await application.browserWindow(page);
     await window.evaluate((target) => { target.setSize(1440, 960); target.show(); target.focus(); });
+    await page.waitForURL('app://studio/index.html');
+    await page.waitForLoadState('load');
     await page.reload();
     report.versions = await application.evaluate(({ app }) => ({ ...process.versions, gpuFeatures: app.getGPUFeatureStatus() }));
   } else {
