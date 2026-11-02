@@ -57,6 +57,8 @@ async function installDiagnostics(target) {
   await target.addInitScript(({ baseline, stressGridSide }) => {
     if (!baseline) window.__studioDiagnosticsRequested = stressGridSide ? { stressGridSide } : {};
     window.__profileLongTasks = [];
+    window.__profileVisibilityEvents = [];
+    document.addEventListener('visibilitychange', () => window.__profileVisibilityEvents.push({ time: performance.now(), state: document.visibilityState }));
     new PerformanceObserver((list) => {
       for (const item of list.getEntries()) window.__profileLongTasks.push({ startTime: item.startTime, duration: item.duration });
     }).observe({ type: 'longtask', buffered: true });
@@ -171,6 +173,8 @@ try {
     await session.send('Tracing.start', { categories: 'devtools.timeline,disabled-by-default-devtools.timeline.frame,v8,gpu,cc,viz,blink.user_timing', options: 'record-as-much-as-possible', transferMode: 'ReturnAsStream' });
     const captureStarted = await page.evaluate(() => {
       window.__profileLongTasks = []; window.__profileDrawCalls = 0;
+      window.__profileVisibilityEvents = [];
+      if (document.hidden) throw new Error('The measured preview must be visible.');
       performance.mark('studio:capture-start');
       window.__studioPreview?.startCapture();
       return performance.now();
@@ -182,9 +186,13 @@ try {
       performance.mark('studio:capture-end');
       return { captured: data, endedAt, snapshot: window.__studioPreview?.snapshot() ?? null,
         longTasks: window.__profileLongTasks.filter((entry) => entry.startTime >= start && entry.startTime <= endedAt),
+        visibilityEvents: window.__profileVisibilityEvents,
         drawCalls: window.__profileDrawCalls, visibility: document.visibilityState, focused: document.hasFocus() };
     }, captureStarted);
     const durationMs = captured.endedAt - captureStarted;
+    if (!baseline && (!captured.captured || !captured.snapshot || !captured.captured.frameTimestampsMs.length || captured.captured.droppedSamples)) {
+      throw new Error('Incomplete rendered capture: missing preview, no rendered samples or diagnostic sample overflow.');
+    }
     const after = await metrics(session);
     const processAfter = application ? await application.evaluate(({ app }) => app.getAppMetrics()) : null;
     const trace = await endTrace(session, resolve(output, `run-${run + 1}.trace.json.gz`));
