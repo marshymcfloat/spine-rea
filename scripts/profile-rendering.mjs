@@ -155,10 +155,14 @@ try {
   } else {
     const url = await serveDemo();
     report.artifactSha256 = createHash('sha256').update(await readFile(resolve(buildRoot, 'apps/runtime-demo/dist/index.html'))).digest('hex');
-    browser = await chromium.launch({ channel: process.env.STUDIO_BROWSER_CHANNEL ?? 'msedge', headless: false });
-    const context = await browser.newContext({ viewport: { width: 1440, height: 960 }, deviceScaleFactor: 1 });
+    const context = await chromium.launchPersistentContext(resolve(output, 'browser-user-data'), {
+      channel: process.env.STUDIO_BROWSER_CHANNEL ?? 'msedge', headless: false,
+      viewport: { width: 1440, height: 960 }, deviceScaleFactor: 1,
+    });
+    browser = context.browser();
+    if (!browser) throw new Error('The profiling browser did not expose its owner.');
     await installDiagnostics(context);
-    page = await context.newPage();
+    page = context.pages()[0] ?? await context.newPage();
     listenForErrors(page);
     await page.goto(url);
     report.versions = { browser: browser.version() };
