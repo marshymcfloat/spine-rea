@@ -136,6 +136,10 @@ For a useful capture:
 - Use a packaged release or a release-equivalent local diagnostic build; measure the
   standalone browser separately. Record commit, Windows/CPU/GPU/RAM, drivers, power mode,
   Electron/Chromium/Pixi versions, display refresh, viewport, DPR and renderer resolution.
+- Separate deterministic functional checks from native cadence measurements. Automation
+  can emulate page visibility/focus and change background scheduling. Record launch
+  settings, use real foreground state for physical captures, and preserve/reject captures
+  that lose focus or become hidden. A forced visible DOM flag does not prove an unoccluded window.
 - For the v0.2 symbol proof, record image sizes/source pixels, scene depth/node count,
   keyed properties/tracks/keys, viewport/DPR, draw calls and the three-key timeline.
   Measure selection/transform/auto-keyframe, scrub, save/reopen and exported playback
