@@ -2,7 +2,7 @@
 
 An offline-first Windows editor for layered 2D rigs, weighted meshes, and slot-game presentation, initially for The Ninth Rite.
 
-This repository implements an Electron/React workspace with a PixiJS reference canvas, working view controls, a restricted read-only desktop bridge, and a standalone browser demo. It also provides validated data contracts, original priest fixtures, and a shared bone/clip evaluator with host-controlled playback. Mesh evaluation/rendering, authored editing, persistence, and export compilation remain planned; the applications still display reference guides.
+This repository implements an Electron/React workspace and standalone browser demo with the original priest fixture, shared bone/clip playback and CPU weighted-mesh rendering. Preview controls support clip selection, play/pause, seeking, speed and crossfades. It also provides validated data contracts, view controls and a restricted read-only desktop bridge. Authored editing, persistence and export compilation remain planned; the loaded fixture is a technical preview.
 
 ## Start here
 
@@ -11,6 +11,7 @@ This repository implements an Electron/React workspace with a PixiJS reference c
 - [Architecture and technical decisions](docs/ARCHITECTURE.md)
 - [Implemented data formats](docs/FORMATS.md)
 - [Shared evaluation and playback API](docs/PLAYBACK.md)
+- [Shared mesh geometry and resource ownership](docs/MESHES.md)
 - [Performance engineering and profiling routine](docs/PERFORMANCE.md)
 - [Original priest fixtures and provenance](packages/test-fixtures/README.md)
 - [Work, review, and handoff process](docs/WORKFLOW.md)
@@ -40,22 +41,26 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-`pnpm dev` opens the desktop application with a local development server. Close the window and stop the command when finished. Use the workspace controls to zoom, fit the reference artboard, and toggle the grid. These are view controls; authored project editing is not implemented yet.
+`pnpm dev` opens the desktop application with a local development server. Close the window and stop the command when finished. Use the preview controls to play or scrub the fixture, zoom, fit and toggle the grid. These are transient preview controls; authored project editing is not implemented yet.
 
 | Command | Behavior |
 | --- | --- |
-| `pnpm dev:demo` | Serve the independent browser canvas demo at `http://127.0.0.1:5174` |
+| `pnpm dev:demo` | Serve the independent browser fixture preview at `http://127.0.0.1:5174` |
 | `pnpm typecheck` | Check application, package, config, and test TypeScript |
 | `pnpm test` | Run focused unit tests |
 | `pnpm build` | Build the browser demo and package a portable Windows x64 Electron application |
 | `pnpm test:desktop` | Run the packaged-application smoke test after `pnpm build` |
+| `pnpm test:runtime` | Test the built standalone preview in installed Microsoft Edge after `pnpm build` |
+| `pnpm profile:core` | Record repeatable Node CPU diagnostics under `test-results/performance`; not an FPS test |
+| `pnpm profile:rendering --host desktop` | Capture three 30-second packaged preview runs, traces and reload resource diagnostics after `pnpm build` |
+| `pnpm profile:rendering --host browser --stress 65` | Capture the production browser build with a 4,225-vertex, four-influence robe in installed Edge |
 | `pnpm check:harness` | Validate the repository documentation and setup |
 | `pnpm --filter @studio/test-fixtures check:assets` | Verify original PNG layers and provenance against their deterministic source |
 | `pnpm --filter @studio/test-fixtures check:documents` | Verify the committed project/runtime JSON samples against their fixture source |
 
 The portable application is `apps/desktop/out/slot-animation-studio-win32-x64/slot-animation-studio.exe`. The browser build is under `apps/runtime-demo/dist`. Both are generated outputs and excluded from Git. This stage produces a portable application; installer distribution is tracked separately.
 
-The [application workflow](.github/workflows/application.yml) installs the frozen lockfile, type-checks, runs unit tests, builds both applications, and smoke-tests the packaged Electron app on Windows. The smoke test uses Electron's own executable without downloading Playwright browsers and saves evidence under `test-results/`.
+The [application workflow](.github/workflows/application.yml) installs the frozen lockfile, type-checks, runs unit tests, builds both applications, and checks the packaged Electron and standalone Edge previews on Windows. Tests use the packaged executable and installed Edge without downloading another browser, and save evidence under `test-results/`. Install Edge locally for the browser checks. Profiling is an explicit local diagnostic, not a noisy timing gate on shared CI hardware; follow [PERFORMANCE.md](docs/PERFORMANCE.md).
 
 ## Run checks
 

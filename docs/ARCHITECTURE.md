@@ -7,9 +7,10 @@ The repository implements the desktop foundation: `apps/desktop`,
 `apps/runtime-demo`, and reference viewport helpers in `@studio/runtime-pixi`.
 It also implements strict project/runtime validation in `@studio/schema` and original
 priest data/art in `@studio/test-fixtures`; see [FORMATS.md](FORMATS.md).
-Shared bone/clip evaluation and host-controlled playback are implemented in
-`@studio/animation-core`; see [PLAYBACK.md](PLAYBACK.md). Mesh skinning, the compiler,
-authored editing, persistence and the rendered animation-player concept below remain planned.
+Shared bone/clip playback and CPU geometry are implemented in `@studio/animation-core`;
+see [PLAYBACK.md](PLAYBACK.md) and [MESHES.md](MESHES.md). Both applications render the
+original priest technical fixture. The compiler, authored editing, persistence and
+exported animation-player loading below remain planned.
 Record consequential changes here; keep task status
 and execution evidence in [Linear](https://linear.app/spine-rea/project/slot-animation-studio-07e39e20dfb5).
 
@@ -20,12 +21,12 @@ Create packages when their first implementation task needs them, not as empty sc
 
 | Application/package | Status | Responsibility | Boundary |
 | --- | --- | --- | --- |
-| `apps/desktop` | Foundation | Electron/preload, React workspace and reference view controls; authored editing follows. | Local I/O belongs behind validated preload operations; bridge currently reads app info only. |
-| `apps/runtime-demo` | Foundation | Independent browser reference canvas; exported animation loading follows. | Runtime packages only; no editor internals or Electron. |
+| `apps/desktop` | Fixture preview | Electron/preload, React workspace, priest transport/view controls; authored editing follows. | Local I/O belongs behind validated preload operations; bridge currently reads app info only. |
+| `apps/runtime-demo` | Fixture preview | Independent browser priest playback; exported animation loading follows. | Runtime packages only; no editor internals or Electron. |
 | `@studio/schema` | Implemented | Strict versioned authoring/runtime types and validation. | Zod/data only; no React, Electron, Pixi or filesystem access. |
-| `@studio/animation-core` | Bones/playback implemented; skinning planned | Hierarchy transforms, clip sampling, local-channel mixing and host-clock playback/markers. CPU skinning follows. | Pure schema/data/math; no renderer, DOM, I/O or wall clock. |
+| `@studio/animation-core` | Implemented | Hierarchy transforms, clip sampling, local mixing, host-clock playback/markers and CPU region/weighted geometry. | Pure schema/data/math; no renderer, DOM, I/O or wall clock. |
 | `@studio/compiler` | Planned | Authoring-to-runtime conversion and asset requirements. | No editor/UI dependency; desktop services write files. |
-| `@studio/runtime-pixi` | Foundation | Reference guides/view fitting; animated geometry rendering follows. | No React, Electron or authoring commands. |
+| `@studio/runtime-pixi` | Fixture rendering | Retained geometry adapter, preview clock/lifecycle and reference/view helpers. | No React, Electron or authoring commands; shared math stays in the core. |
 | `@studio/slot-events` | Planned | Resolved-event mapping and deterministic sequences. | Presentation only; no outcome/wagering logic. |
 | `@studio/test-fixtures` | Implemented | Original PNG layers, validated priest documents, cloned constructors and deterministic regeneration. | Technical test inputs/provenance, without a compiler or evaluator. |
 
@@ -44,7 +45,7 @@ responsiveness, startup and resource lifetime are design requirements.
 - Keep a single host-controlled frame path. React handles editor UI state; the shared
   evaluator and Pixi adapter handle animation without per-frame UI commits or IPC.
 - Build validated data/index caches at document revisions, with explicit invalidation.
-  Reuse private mesh/adapter buffers when introduced while preserving public snapshots.
+  Reuse explicit geometry outputs/private staging while preserving public snapshots.
 - Give rendering resources and asynchronous work explicit owners and cleanup paths,
   including cached-page restoration and project changes.
 - Select workers, batching, culling, caching or GPU evaluation from measured bottlenecks.
@@ -56,9 +57,9 @@ production mesh-capacity or sustained-FPS claim follows from its functional test
 
 ## Data and rendering flow
 
-The following is the target authoring/playback flow. The shared evaluator currently
-produces bone matrices and attachment opacity; mesh geometry, compilation and project
-filesystem services remain planned.
+The following is the target authoring/playback flow. The shared core currently
+produces bone matrices, attachment opacity and rig-space geometry. Compilation and
+project filesystem services remain planned.
 
 ```text
 PNG files → desktop import service → project-owned source assets
@@ -127,9 +128,10 @@ data atomically. They must not silently reinterpret animated poses as setup pose
 Runtime playback keeps topology, UVs and weights fixed; only bones and render channels animate.
 Direct per-vertex animation is outside v0.1.
 
-Planned CPU skinning belongs in `animation-core` with reusable private output buffers.
-Public pose snapshots retain their documented isolation. Pixi will consume
-evaluated positions, UVs and indices through its mesh geometry interface. Keep React
+CPU skinning belongs in `animation-core`, with explicit caller-owned output buffers
+and private staging for atomic writes. Public pose snapshots retain their documented
+isolation. Pixi consumes evaluated positions, UVs and indices through retained mesh
+geometry. Keep React
 out of frame-by-frame evaluation. Profile before considering a separate GPU path.
 
 ## Playback and public runtime concept
@@ -225,3 +227,24 @@ use provisional targets until representative hardware baselines exist. Preserve 
 public snapshots and shared evaluation, and optimize measured costs rather than adding
 speculative parallelism or weakening security. FPS and capacity claims remain unverified
 until captured on the applicable rendered workload.
+
+### Shared geometry and fixture preview: 2026-11-03
+
+- Keep the version 1 data format unchanged. Compile inverse setup matrices and
+  bone-local weighted points at revision time. Write shared rig-space region quads
+  and weighted vertices into explicit consumer-owned Float32 buffers; stage/check
+  all positions before committing. Reject singular/unrepresentable inverse binds
+  and Float32 overflow; retain mirrored/nested transforms and animated zero scale.
+- Freeze geometry identity, UVs, topology and draw order for that revision. Rebuild
+  after authored setup/topology/order changes. Existing pose/player APIs continue
+  returning independent snapshots; geometry reuse is an explicit separate contract.
+- Retain Pixi meshes in flat authored order and upload positions/opacity. Hosts
+  load original fixture textures and own disposal; no Pixi-side skinning or bone
+  parenting is allowed for evaluated rig-space geometry.
+- Share one preview host clock/lifecycle between React and the standalone demo.
+  Pause advancement while hidden and start a fresh timestamp on visibility return;
+  deliberate inactive time is excluded rather than clamping an active-frame delta.
+  Preserve persisted-page restoration and clean partial asynchronous initialization.
+- Profile the original 12-bone priest and a bounded 65×65 four-influence robe. The
+  denser fixture is diagnostic data, not a new authored production capability.
+  Keep traces/results in Linear/PR evidence; lower-spec hardware remains a release gate.

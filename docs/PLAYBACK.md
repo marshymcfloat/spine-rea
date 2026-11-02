@@ -3,7 +3,8 @@
 Decision date: 2026-11-02. Data shapes: [FORMATS.md](FORMATS.md).
 `@studio/animation-core` owns these rules for both editor and standalone hosts.
 It uses schema data and math, with no renderer, DOM, filesystem or wall clock.
-Mesh skinning/rendering and export compilation follow in their own tasks.
+Shared CPU geometry and fixture rendering use [MESHES.md](MESHES.md).
+Export compilation remains a separate task.
 
 ```ts
 import { createRigEvaluator, createPlaybackController } from '@studio/animation-core';
@@ -33,7 +34,7 @@ It recomputes world matrices rather than trusting supplied world matrices.
 Poses contain `rigId`, bone records `{ id, local, world }`, attachment records
 `{ id, opacity }`, and an independent flat `drawOrder`. Bone/attachment arrays retain
 their source order; evaluation resolves parents first even when the source is unordered.
-Mesh positions are not evaluated by this stage.
+Mesh positions are written separately by `createGeometryEvaluator`, using this pose.
 
 For each local transform use translation × rotation × scale:
 
@@ -125,8 +126,9 @@ crossing timestamps also fail without partial advancement. No crossings are sile
 Deterministic tests must cover nested/mirrored transforms, curves, unkeyed channels,
 mixing, interrupted fades, silent seeking, loop/end/start markers and failed-update
 atomicity. Sampling the authoring and runtime fixtures after JSON serialization must
-produce matching bones and opacity. This is data/evaluation equivalence; compiler,
-skinned-vertex and visual parity are later acceptance gates.
+produce matching bones and opacity. Shared geometry tests also compare skinned
+vertices between these fixture documents. This is data/evaluation equivalence;
+compiler/export parity remains a later acceptance gate.
 
 The browser-boundary integration test builds the public entry as a self-contained
 browser bundle and exercises evaluation, crossfades and markers in an isolated host

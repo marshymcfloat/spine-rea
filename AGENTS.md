@@ -14,13 +14,14 @@
 - First release includes placeholder priest art, hierarchical bones, editable textured meshes, painted/numeric bone weights, and all five priest clips.
 - Weighted meshes support up to four normalized influences per vertex. Direct vertex animation and IK are deferred.
 - Consume already-resolved game events. Outcome generation, wagering, balances, and payout logic are outside this product.
-- The current implementation includes the desktop foundation, reference canvas, schemas/fixtures, and shared bone/clip evaluation and playback. Weighted-mesh evaluation, authoring tools, persistence, and runtime export remain planned; check the README before describing capabilities.
+- The current implementation includes the desktop foundation, schemas/fixtures, shared bone/clip playback, CPU weighted geometry and fixture previews. Authoring tools, persistence, and runtime export remain planned; check the README before describing capabilities.
 
 ## Architecture and editing
 
 - Keep schema and animation evaluation independent of Electron, React, and PixiJS.
 - Read [format contracts](docs/FORMATS.md) before changing schemas, fixtures, evaluation, or compilation.
 - Read [playback semantics](docs/PLAYBACK.md) before changing evaluation, timing, blending, or markers.
+- Read [geometry ownership](docs/MESHES.md) before changing skinning, attachment geometry, rendering or preview lifetimes.
 - Use the same evaluator for editor preview and exported runtime: bone transforms, interpolation, blending, markers, and CPU mesh skinning.
 - Keep attachment draw order separate from bone hierarchy. The Pixi adapter renders evaluated geometry; it does not duplicate animation math.
 - Route all authored project changes through undoable document commands. Transient selection/view state is separate.

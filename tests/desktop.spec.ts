@@ -2,7 +2,7 @@ import { existsSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { _electron as electron, expect, test, type Page } from '@playwright/test';
-import { checkPreview } from './preview-checks';
+import { checkPreview, snapshot } from './preview-checks';
 
 const repositoryRoot = fileURLToPath(new URL('../', import.meta.url));
 
@@ -125,6 +125,19 @@ test('packaged desktop canvas works offline with an isolated preload boundary', 
     });
 
     await checkPreview(page);
+
+    await page.getByRole('button', { name: 'Play', exact: true }).click();
+    await expect.poll(async () => (await snapshot(page!)).state.elapsedSeconds).toBeGreaterThan(.05);
+    await browserWindow.evaluate((window) => window.minimize());
+    await page.waitForFunction(() => document.hidden);
+    const hidden = await snapshot(page);
+    await page.waitForTimeout(150);
+    expect((await snapshot(page)).state.elapsedSeconds).toBe(hidden.state.elapsedSeconds);
+    expect((await snapshot(page)).counts.rafScheduled).toBe(false);
+    await browserWindow.evaluate((window) => { window.restore(); window.showInactive(); });
+    await page.waitForFunction(() => !document.hidden);
+    await expect.poll(async () => (await snapshot(page!)).state.elapsedSeconds).toBeGreaterThan(hidden.state.elapsedSeconds);
+    await page.getByRole('button', { name: 'Stop', exact: true }).click();
 
     const zoomValue = page.getByTestId('zoom-value');
     await page.getByRole('button', { name: 'Fit artboard', exact: true }).click();

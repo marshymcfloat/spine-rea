@@ -85,7 +85,7 @@ Keep tasks small enough to verify independently. Prefer a complete path such as 
 | Packaging | Installed offline Windows smoke test with environment recorded |
 | Performance-sensitive change | PERFORMANCE.md routine: workload/device/targets, frame/stall metrics for rendered paths, relevant CPU/startup/I/O/allocation/lifecycle measurements, comparable evidence and correctness checks |
 
-Working commands are in the README. The foundation implements type checks, unit tests, portable Windows packaging, and a packaged Electron smoke test. Shared core tests cover bone/clip sampling and playback boundaries. Export/vertex parity, authored document commands and persistence require their own checks as those subsystems arrive; the foundation smoke test does not verify them.
+Working commands are in the README. Checks cover type/unit tests, portable Windows packaging, Electron/Edge fixture transport and geometry, and shared bone/vertex equivalence for project/runtime inputs. Compiler/export parity, authored document commands and persistence require their own checks as those subsystems arrive. Local profiling records actual phase/frame/resource evidence separately from functional smoke tests.
 
 ## Stop or hand off
 

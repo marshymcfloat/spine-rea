@@ -4,9 +4,10 @@ Accepted direction: 2026-11-02. First customer: The Ninth Rite production team.
 
 This document defines the accepted product scope. The repository currently contains
 the development harness, desktop/canvas foundation, validated contracts, original priest
-fixtures, and shared bone/clip evaluation and host-controlled playback. Authoring, weighted-mesh
-evaluation/rendering, persistence and export remain planned. [FORMATS.md](FORMATS.md) and
-[PLAYBACK.md](PLAYBACK.md) describe implemented contracts; the applications still show reference guides.
+fixtures, shared bone/clip playback and CPU weighted-mesh geometry with fixture rendering.
+Authoring, persistence and export remain planned. [FORMATS.md](FORMATS.md),
+[PLAYBACK.md](PLAYBACK.md) and [MESHES.md](MESHES.md) describe implemented contracts;
+the applications show the technical priest preview.
 Implementation decisions belong in [ARCHITECTURE.md](ARCHITECTURE.md).
 Execution follows [WORKFLOW.md](WORKFLOW.md), with task status in
 [Linear](https://linear.app/spine-rea/project/slot-animation-studio-07e39e20dfb5).

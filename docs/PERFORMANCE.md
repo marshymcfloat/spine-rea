@@ -12,8 +12,9 @@ caches, GPU paths or memoization need measured benefit and an ownership/invalida
 
 Targets below are provisional project targets. The reference canvas, unit tests
 and browser VM check do not establish measured animation FPS or production capacity.
-The current core deliberately allocates independent snapshots; skinning and reusable
-geometry buffers remain planned. Preserve those facts when describing performance.
+The current core deliberately allocates independent pose/player snapshots. Geometry
+uses explicit caller-owned reusable buffers through [MESHES.md](MESHES.md), with
+private staging for atomic writes. Preserve these ownership facts when describing performance.
 
 ## Development and review routine
 

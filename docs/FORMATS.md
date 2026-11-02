@@ -3,7 +3,8 @@
 Implemented: 2026-11-02. The authoritative validators and exported TypeScript types
 are in [`@studio/schema`](../packages/schema/src/index.ts). These contracts describe
 data. Shared bone/clip evaluation and host-clock playback are described in
-[PLAYBACK.md](PLAYBACK.md); mesh evaluation, compiler, project filesystem service and rendered player remain planned.
+[PLAYBACK.md](PLAYBACK.md); shared CPU geometry and fixture rendering are described in
+[MESHES.md](MESHES.md). Compiler, project filesystem service and exported-player loading remain planned.
 
 ## Documents and API
 
@@ -72,8 +73,9 @@ Triangles are a flat integer-index array, with at least one complete group of th
 Each group references distinct in-range vertices with finite, nonzero bind area.
 Opacity values are in `[0, 1]`.
 
-The intended future CPU skinning formula and package boundaries are in
-[ARCHITECTURE.md](ARCHITECTURE.md). Passing these checks does not establish mesh evaluation or rendering.
+The CPU skinning formula and package boundaries are in
+[ARCHITECTURE.md](ARCHITECTURE.md); implementation/ownership are in [MESHES.md](MESHES.md).
+Schema validation itself does not perform evaluation or rendering.
 
 ## Clips, curves and markers
 
@@ -124,7 +126,7 @@ The fixture has 12 bones, eight region attachments, one mesh and nine original P
 layers. Explicit draw order places a rear arm and robe behind the torso and the front
 arm above it. Five short named clip inputs cover loop/one-shot data, all easing kinds,
 opacity tracks and marker payloads. They are technical samples, not finished animations
-or proof of export/vertex parity; the current applications still show reference guides.
+or proof of compiler/export parity; the applications render these technical fixtures.
 
 Tests cover invalid contracts/references/geometry/weights, fixture parsing, JSON
 roundtrips, nested clone independence, PNG metadata/transparency, source/output hashes

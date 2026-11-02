@@ -27,7 +27,7 @@ if (!['desktop', 'browser'].includes(host) || !Number.isFinite(seconds) || secon
 const output = resolve(root, 'test-results/performance', label);
 await mkdir(output, { recursive: true });
 const errors = [];
-let application, browser, server, page;
+let application, browser, server, page, session;
 const summary = (values) => {
   const sorted = [...values].sort((a, b) => a - b);
   const p = (fraction) => sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * fraction))] : null;
@@ -80,6 +80,11 @@ async function readiness() {
   if (!baseline) await page.waitForFunction(() => !!window.__studioPreview);
 }
 
+function listenForErrors(target) {
+  target.on('pageerror', (error) => errors.push(error.message));
+  target.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });
+}
+
 async function metrics(session) {
   const values = await session.send('Performance.getMetrics');
   const dom = await session.send('Memory.getDOMCounters');
@@ -129,6 +134,7 @@ try {
     application = await _electron.launch({ executablePath, cwd: root, env, chromiumSandbox: true, args: [`--user-data-dir=${resolve(output, 'user-data')}`] });
     await installDiagnostics(application.context());
     page = await application.firstWindow();
+    listenForErrors(page);
     const window = await application.browserWindow(page);
     await window.evaluate((target) => { target.setSize(1440, 960); target.show(); target.focus(); });
     await page.reload();
@@ -140,16 +146,15 @@ try {
     const context = await browser.newContext({ viewport: { width: 1440, height: 960 }, deviceScaleFactor: 1 });
     await installDiagnostics(context);
     page = await context.newPage();
+    listenForErrors(page);
     await page.goto(url);
     report.versions = { browser: browser.version() };
   }
-  page.on('pageerror', (error) => errors.push(error.message));
-  page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });
   await readiness();
   report.launchReloadToReadyMs = performance.now() - started;
   report.startupLimit = 'Includes diagnostic reload for desktop; not a cold-start claim.';
   await page.bringToFront();
-  const session = await page.context().newCDPSession(page);
+  session = await page.context().newCDPSession(page);
   await session.send('Performance.enable');
   report.renderer = await page.evaluate(() => {
     const canvas = document.querySelector('canvas');
@@ -161,14 +166,25 @@ try {
   if (!baseline) await page.getByRole('button', { name: 'Play', exact: true }).click();
   await wait(baseline ? 2000 : 5000);
   for (let run = 0; run < runs; run++) {
-    await page.evaluate(() => { window.__profileLongTasks = []; window.__profileDrawCalls = 0; window.__studioPreview?.startCapture(); });
     const before = await metrics(session);
     const processBefore = application ? await application.evaluate(({ app }) => app.getAppMetrics()) : null;
     await session.send('Tracing.start', { categories: 'devtools.timeline,disabled-by-default-devtools.timeline.frame,v8,gpu,cc,viz,blink.user_timing', options: 'record-as-much-as-possible', transferMode: 'ReturnAsStream' });
-    const captureStarted = performance.now();
+    const captureStarted = await page.evaluate(() => {
+      window.__profileLongTasks = []; window.__profileDrawCalls = 0;
+      performance.mark('studio:capture-start');
+      window.__studioPreview?.startCapture();
+      return performance.now();
+    });
     await wait(seconds * 1000);
-    const captured = await page.evaluate(() => ({ captured: window.__studioPreview?.endCapture() ?? null, snapshot: window.__studioPreview?.snapshot() ?? null, longTasks: window.__profileLongTasks, drawCalls: window.__profileDrawCalls, visibility: document.visibilityState }));
-    const durationMs = performance.now() - captureStarted;
+    const captured = await page.evaluate((start) => {
+      const data = window.__studioPreview?.endCapture() ?? null;
+      const endedAt = performance.now();
+      performance.mark('studio:capture-end');
+      return { captured: data, endedAt, snapshot: window.__studioPreview?.snapshot() ?? null,
+        longTasks: window.__profileLongTasks.filter((entry) => entry.startTime >= start && entry.startTime <= endedAt),
+        drawCalls: window.__profileDrawCalls, visibility: document.visibilityState, focused: document.hasFocus() };
+    }, captureStarted);
+    const durationMs = captured.endedAt - captureStarted;
     const after = await metrics(session);
     const processAfter = application ? await application.evaluate(({ app }) => app.getAppMetrics()) : null;
     const trace = await endTrace(session, resolve(output, `run-${run + 1}.trace.json.gz`));
@@ -196,13 +212,34 @@ try {
 } catch (error) {
   errors.push(String(error)); process.exitCode = 1;
 } finally {
-  await writeFile(resolve(output, 'report.json'), JSON.stringify(report, null, 2));
-  await application?.close(); await browser?.close();
-  if (server) {
-    const closed = new Promise((done) => server.close(done));
-    server.closeAllConnections();
-    await closed;
+  report.cleanup = [];
+  let cleanupFailed = false;
+  async function clean(name, action) {
+    const started = performance.now();
+    let timer;
+    if (process.env.STUDIO_PROFILE_DEBUG) console.log(`Cleanup: ${name}`);
+    try {
+      await Promise.race([action(), new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(`${name} cleanup exceeded 30 seconds.`)), 30_000); })]);
+      report.cleanup.push({ name, durationMs: performance.now() - started, ok: true });
+    } catch (error) {
+      cleanupFailed = true; errors.push(String(error)); process.exitCode = 1;
+      report.cleanup.push({ name, durationMs: performance.now() - started, error: String(error) });
+    } finally { clearTimeout(timer); }
+  }
+  try {
+    await clean('detach tracing session', async () => session?.detach());
+    if (browser) await clean('close measured page', async () => page?.close());
+    if (application) await clean('close owned Electron', async () => application.close());
+    if (browser) await clean('close owned browser', async () => browser.close());
+  } finally {
+    if (server) await clean('close local file server', async () => {
+      const closed = new Promise((done) => server.close(done));
+      server.closeAllConnections();
+      await closed;
+    });
+    await writeFile(resolve(output, 'report.json'), JSON.stringify(report, null, 2));
   }
   console.log(`Performance report: ${resolve(output, 'report.json')}`);
   if (errors.length) console.error(errors);
+  if (cleanupFailed) process.exit(1);
 }

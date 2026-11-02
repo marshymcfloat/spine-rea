@@ -65,3 +65,13 @@ node packages/test-fixtures/scripts/generate-priest-documents.mjs --check
 
 Fixture tests cover format parsing, real PNG metadata/provenance, geometry/order
 coverage, JSON roundtrips, regeneration and nested mutation independence.
+
+## Diagnostic density fixture
+
+`createPriestStressFixture(gridSide = 65)` returns an independent runtime input with
+the same art/rig/clips and a denser robe. Grid sides are bounded to integers 3–129.
+The default has 4,225 robe vertices, 8,192 robe triangles and four influence entries
+per vertex; the eight regions add 32 rendered vertices. It does not change committed
+JSON/art or establish supported production capacity. Texture source area is 41,968
+pixels across nine PNGs (167,872 bytes at RGBA8, excluding GPU/driver overhead).
+Use [performance guidance](../../docs/PERFORMANCE.md) and store results in the issue.
