@@ -1,6 +1,7 @@
 import { expect, type Page } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import type { RuntimeDocument } from '../packages/schema/src/index';
 import { createGeometryEvaluator, createRigEvaluator, type EvaluatedPose, type PlaybackState } from '../packages/animation-core/src/index';
-import { createPriestRuntimeFixture } from '../packages/test-fixtures/src/index';
 
 interface PreviewSnapshot {
   pose: EvaluatedPose;
@@ -37,13 +38,14 @@ export async function checkPreview(page: Page) {
 
   const canvas = page.getByTestId('studio-canvas');
   const beforeSeek = await canvas.screenshot();
+  await page.getByLabel('Seek animation', { exact: true }).press('Home');
   await page.getByLabel('Seek animation', { exact: true }).press('End');
   const sought = await snapshot(page);
   expect(sought.state.timeSeconds).toBe(1.2);
   expect(sought.state.mixProgress).toBe(1);
   expect((await canvas.screenshot()).equals(beforeSeek)).toBe(false);
 
-  const document = createPriestRuntimeFixture();
+  const document = JSON.parse(readFileSync(new URL('../packages/test-fixtures/fixtures/priest.runtime.json', import.meta.url), 'utf8')) as RuntimeDocument;
   const evaluator = createRigEvaluator(document, 'rig-priest');
   const geometry = createGeometryEvaluator(document, 'rig-priest');
   const output = geometry.createOutput();

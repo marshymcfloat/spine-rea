@@ -13,6 +13,7 @@ import { _electron, chromium } from '@playwright/test';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const args = process.argv.slice(2);
 const option = (name, fallback) => args.includes(name) ? args[args.indexOf(name) + 1] : fallback;
+const buildRoot = resolve(option('--build-root', root));
 const host = option('--host', 'desktop');
 const baseline = args.includes('--baseline');
 const seconds = Number(option('--seconds', baseline ? '5' : '30'));
@@ -36,7 +37,7 @@ const summary = (values) => {
 const wait = (ms) => new Promise((done) => setTimeout(done, ms));
 
 async function serveDemo() {
-  const directory = resolve(root, 'apps/runtime-demo/dist');
+  const directory = resolve(buildRoot, 'apps/runtime-demo/dist');
   if (!existsSync(resolve(directory, 'index.html'))) throw new Error('Run pnpm build first.');
   server = createServer(async (request, response) => {
     try {
@@ -118,8 +119,8 @@ async function endTrace(session, file) {
     attribution: 'Trace-wide frame events require frame-track/process correlation; not an application-dropped-frame total. No event does not prove zero drops.' };
 }
 
-const report = { label, host, baseline, stressGridSide, sourceCommit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
-  uncommittedChanges: Boolean(execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim()),
+const report = { label, host, baseline, stressGridSide, sourceCommit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: buildRoot, encoding: 'utf8' }).trim(),
+  uncommittedChanges: Boolean(execFileSync('git', ['status', '--porcelain'], { cwd: buildRoot, encoding: 'utf8' }).trim()),
   capturedAt: new Date().toISOString(), environment: { platform: process.platform, osRelease: release(), node: process.version, cpu: cpus()[0]?.model, ramBytes: totalmem(), powerMode: 'record separately', displayRefreshHz: 'record separately' },
   methodology: { seconds, runs, warmupSeconds: baseline ? 2 : 5, build: 'packaged Electron / Vite production browser build',
     instrumentation: 'Opt-in phase timings, WebGL draw-call wrapper, long-task observer and CDP trace. Timing overhead is included; render submission is not GPU completion. Idle is not an FPS measurement.' }, runs: [], errors };
@@ -130,10 +131,10 @@ try {
 try {
   const started = performance.now();
   if (host === 'desktop') {
-    const executablePath = resolve(root, 'apps/desktop/out/slot-animation-studio-win32-x64/slot-animation-studio.exe');
+    const executablePath = resolve(buildRoot, 'apps/desktop/out/slot-animation-studio-win32-x64/slot-animation-studio.exe');
     report.artifactSha256 = createHash('sha256').update(await readFile(resolve(executablePath, '../resources/app.asar'))).digest('hex');
     const env = { ...process.env, STUDIO_SMOKE_TEST: '1' }; delete env.ELECTRON_RUN_AS_NODE;
-    application = await _electron.launch({ executablePath, cwd: root, env, chromiumSandbox: true, args: [`--user-data-dir=${resolve(output, 'user-data')}`] });
+    application = await _electron.launch({ executablePath, cwd: buildRoot, env, chromiumSandbox: true, args: [`--user-data-dir=${resolve(output, 'user-data')}`] });
     await installDiagnostics(application.context());
     page = await application.firstWindow();
     listenForErrors(page);
@@ -143,7 +144,7 @@ try {
     report.versions = await application.evaluate(({ app }) => ({ ...process.versions, gpuFeatures: app.getGPUFeatureStatus() }));
   } else {
     const url = await serveDemo();
-    report.artifactSha256 = createHash('sha256').update(await readFile(resolve(root, 'apps/runtime-demo/dist/index.html'))).digest('hex');
+    report.artifactSha256 = createHash('sha256').update(await readFile(resolve(buildRoot, 'apps/runtime-demo/dist/index.html'))).digest('hex');
     browser = await chromium.launch({ channel: process.env.STUDIO_BROWSER_CHANNEL ?? 'msedge', headless: false });
     const context = await browser.newContext({ viewport: { width: 1440, height: 960 }, deviceScaleFactor: 1 });
     await installDiagnostics(context);

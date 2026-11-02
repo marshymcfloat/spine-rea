@@ -3,7 +3,7 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: './tests',
   testMatch: '**/desktop.spec.ts',
-  outputDir: './test-results',
+  outputDir: './test-results/desktop',
   fullyParallel: false,
   workers: 1,
   forbidOnly: Boolean(process.env.CI),
