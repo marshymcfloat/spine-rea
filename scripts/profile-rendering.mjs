@@ -64,6 +64,13 @@ async function installDiagnostics(target) {
       for (const item of list.getEntries()) window.__profileLongTasks.push({ startTime: item.startTime, duration: item.duration });
     }).observe({ type: 'longtask', buffered: true });
     window.__profileDrawCalls = 0;
+    window.__profileInputEvents = [];
+    window.__profileEventTimingSupported = PerformanceObserver.supportedEntryTypes.includes('event');
+    if (window.__profileEventTimingSupported) {
+      new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) window.__profileInputEvents.push({ name: entry.name, duration: entry.duration, processingMs: entry.processingEnd - entry.processingStart, interactionId: entry.interactionId });
+      }).observe({ type: 'event', durationThreshold: 16 });
+    }
     for (const Context of [window.WebGLRenderingContext, window.WebGL2RenderingContext]) {
       if (!Context) continue;
       for (const name of ['drawElements', 'drawArrays', 'drawElementsInstanced', 'drawArraysInstanced']) {
@@ -208,7 +215,17 @@ try {
     await writeFile(resolve(output, 'report.json'), JSON.stringify(report, null, 2));
     console.log(JSON.stringify({ label, run: run + 1, durationMs, phases, longTasks: captured.longTasks.length, drawCalls: captured.drawCalls, visibility: captured.visibility, traceEvents: trace.eventCounts }));
   }
-  if (!baseline) await page.getByRole('button', { name: 'Pause', exact: true }).click();
+  if (!baseline) {
+    await page.getByRole('button', { name: 'Pause', exact: true }).click();
+    await page.evaluate(() => { window.__profileInputEvents = []; });
+    for (let action = 0; action < 12; action++) {
+      await page.getByRole('button', { name: action % 2 ? 'Pause' : 'Play', exact: true }).click();
+      await wait(100);
+    }
+    await wait(200);
+    report.inputProbe = await page.evaluate(() => ({ supported: window.__profileEventTimingSupported, trustedTransportClicks: 12, events: window.__profileInputEvents }));
+    report.inputProbe.limit = 'Event Timing reports only events at or above its 16 ms minimum threshold; quick events are omitted. This is a transport diagnostic, not unbiased input percentiles or authoring-input evidence.';
+  }
   await page.screenshot({ path: resolve(output, 'preview.png') });
   report.lifecycle = [];
   for (let cycle = 0; cycle < 6; cycle++) {

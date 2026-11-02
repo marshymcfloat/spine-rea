@@ -40,7 +40,7 @@ test('standalone build shares geometry, transport and cached-page lifetime witho
     else await route.continue();
   });
   await page.goto(address);
-  await expect(page.getByRole('status')).toHaveText('Canvas ready');
+  await expect(page.locator('#status')).toHaveText('Canvas ready');
   await checkPreview(page);
   expect(await page.evaluate(() => ({ studio: typeof (window as unknown as { studio?: unknown }).studio, require: typeof (window as unknown as { require?: unknown }).require }))).toEqual({ studio: 'undefined', require: 'undefined' });
   const before = await snapshot(page);

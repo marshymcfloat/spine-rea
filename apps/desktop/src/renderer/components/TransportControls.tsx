@@ -25,7 +25,7 @@ export function TransportControls({ preview }: TransportControlsProps) {
       <input aria-label="Seek animation" type="range" min="0" max={readout?.duration || 1} step="0.001"
         disabled={!ready || readout?.state.clipId === null} value={readout?.state.timeSeconds ?? 0}
         onChange={(event) => preview?.seek(Number(event.currentTarget.value))} />
-      <output data-testid="playback-time" aria-label="Playback time">{(readout?.state.timeSeconds ?? 0).toFixed(2)} s</output>
+      <output data-testid="playback-time" aria-label="Playback time" aria-live="off">{(readout?.state.timeSeconds ?? 0).toFixed(2)} s</output>
       <label>Speed
         <select aria-label="Playback speed" disabled={!ready} value={readout?.state.speed ?? 1}
           onChange={(event) => preview?.setSpeed(Number(event.currentTarget.value))}>
