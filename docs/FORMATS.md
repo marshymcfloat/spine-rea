@@ -3,7 +3,15 @@
 Implemented: 2026-11-02. The authoritative validators and exported TypeScript types
 are in [`@studio/schema`](../packages/schema/src/index.ts). These contracts describe
 data. Shared bone/clip evaluation and host-clock playback are described in
-[PLAYBACK.md](PLAYBACK.md); mesh evaluation, compiler, project filesystem service and rendered player remain planned.
+[PLAYBACK.md](PLAYBACK.md). The merged foundation has no mesh renderer, compiler,
+project filesystem service or generalized scene player. CPU mesh geometry and fixture
+previews are preserved in unmerged [SPI-9 PR #5](https://github.com/marshymcfloat/slot-animation-studio/pull/5),
+without changing these version 1 contracts.
+
+The v0.2 product direction in [PRODUCT_PLAN.md](PRODUCT_PLAN.md) calls for common scene
+nodes/property tracks and raster/vector/mask assets. Those contracts are planned;
+the tables below describe only the currently implemented strict version 1 formats.
+Product v0.2 is not a `schemaVersion` value.
 
 ## Documents and API
 
@@ -72,8 +80,10 @@ Triangles are a flat integer-index array, with at least one complete group of th
 Each group references distinct in-range vertices with finite, nonzero bind area.
 Opacity values are in `[0, 1]`.
 
-The intended future CPU skinning formula and package boundaries are in
+The CPU skinning formula and package boundaries are in
 [ARCHITECTURE.md](ARCHITECTURE.md). Passing these checks does not establish mesh evaluation or rendering.
+Moving mesh authoring/weight tools to P2 does not remove mesh records from version 1
+or weaken their validation. Bind/topology/weight editing remains a later UI capability.
 
 ## Clips, curves and markers
 
@@ -112,6 +122,37 @@ newer or malformed versions are rejected; there is no automatic migration today.
 Future changes must explicitly update the relevant contract, tests and documentation.
 The planned project service must preserve source files when introducing a migration.
 No `.slotstudio` folder layout, export manifest, atlas format or foreign-editor compatibility is implemented by this package.
+
+### Planned v0.2 scene contract and compatibility
+
+Product release labels and project/runtime format integers are separate. Both existing
+formats remain at integer `1`; do not change fixtures to `0.2`, accept new unknown fields
+or silently reinterpret existing rig tracks. A future incompatible contract must name
+its next integer version explicitly for each affected format before implementation.
+
+The next contract must define common raster/group/vector/rig nodes, hierarchy/order,
+asset provenance, supported properties and general property tracks. Define masks,
+source versus derived graphics and runtime export representations with that contract.
+These are design requirements, not additional fields or APIs accepted by today's validators.
+Text, emitters, cameras and advanced vector/mesh properties follow later scope gates.
+
+Keep the existing bone/player APIs and independent snapshot semantics. Adapt version 1
+rigs/tracks into the common scene model through a documented legacy adapter or an
+explicit deterministic migration; do not create an unrelated rig timeline. A rig's
+flat attachment order and rig-space bind geometry remain distinct from scene parenting.
+
+Compatibility tests must retain the original version 1 project/runtime fixtures and
+prove stable IDs/references, asset paths, setup/bind data, weights, draw order, easing,
+clip timing and markers. Compare evaluated poses/geometry where applicable before and
+after conversion, including serialization and independent ownership. Reject unsupported
+versions and invalid input with field-path errors; conversion must not silently repair
+weights, discard unknown data or overwrite originals. No converter is implemented yet.
+
+Current assets accept PNG only. Planned PNG/JPG/SVG import must preserve originals and
+separate derived paths, masks and extracted raster layers with explicit source references.
+The schema and privileged importer must agree on the supported SVG subset and safe
+relative asset resolution; a new MIME string alone does not establish import/render support.
+Tracing flat artwork and proposing semantic-part masks are separate preparation operations.
 
 [`@studio/test-fixtures`](../packages/test-fixtures/README.md) supplies schema-validated,
 independent clones through `createPriestProjectFixture()` and `createPriestRuntimeFixture()`.

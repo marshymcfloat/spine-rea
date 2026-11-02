@@ -54,7 +54,21 @@ or first baseline for a new path; otherwise explain why runtime profiling is ina
 Completed work, remaining work, blocker if any, and one exact next action.
 ```
 
-Keep tasks small enough to verify independently. Prefer a complete path such as a weighted sleeve that exports and plays over an unbounded task such as building the whole engine. Later milestones receive detailed issues when approached; milestone progress comes from Linear.
+Keep tasks small enough to verify independently. Start with the v0.2 symbol path: import → select/transform → keyframe → save/reopen → export/play. Extend the same nodes/timeline to SVG and basic rigs. Mesh authoring is P2; the retained SPI-9 proof must not block independent symbol work or be marked Done without its remaining evidence. Later milestones receive detailed issues when approached; milestone progress comes from Linear.
+
+## Scope changes and compatibility
+
+- The accepted product v0.2 scope supersedes the previous mesh-first release gates.
+- Preserve completed work, issue history, PRs, fixtures and verification evidence.
+  Record reprioritization explicitly; missing acceptance evidence stays open.
+- Keep one current action issue. Park deferred incomplete work in Backlog with a
+  dated reason and resumption action; remove dependencies that no longer apply.
+- Agree on unified scene/property contracts before dependent editing or compiler
+  work. New product labels do not change schema versions; migration/legacy adapters
+  need explicit versions and regression fixtures.
+- Basic undo, save/reopen and recovery checks belong in each usable vertical slice.
+  Later hardening expands this evidence; it does not postpone basic data safety.
+- Expand later milestone issues when approached. Linear is the sole task backlog.
 
 ## Parallel agents
 

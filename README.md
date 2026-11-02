@@ -1,8 +1,8 @@
 # Slot Animation Studio
 
-An offline-first Windows editor for layered 2D rigs, weighted meshes, and slot-game presentation, initially for The Ninth Rite.
+An offline-first Windows motion editor for symbols, raster/vector artwork, character rigs and slot-game presentation, initially for The Ninth Rite.
 
-This repository implements an Electron/React workspace with a PixiJS reference canvas, working view controls, a restricted read-only desktop bridge, and a standalone browser demo. It also provides validated data contracts, original priest fixtures, and a shared bone/clip evaluator with host-controlled playback. Mesh evaluation/rendering, authored editing, persistence, and export compilation remain planned; the applications still display reference guides.
+The merged foundation implements an Electron/React workspace, PixiJS reference canvas, view controls, restricted read-only bridge, standalone browser demo, validated version 1 data contracts, original priest fixtures and shared bone/clip playback. Existing CPU weighted-mesh geometry and fixture previews are preserved in [SPI-9 / draft PR #5](https://github.com/marshymcfloat/slot-animation-studio/pull/5); its performance acceptance remains open in Linear. Unified authored editing, asset import, persistence and export compilation remain planned.
 
 ## Start here
 
@@ -11,6 +11,7 @@ This repository implements an Electron/React workspace with a PixiJS reference c
 - [Architecture and technical decisions](docs/ARCHITECTURE.md)
 - [Implemented data formats](docs/FORMATS.md)
 - [Shared evaluation and playback API](docs/PLAYBACK.md)
+- [Preserved geometry ownership contract](docs/MESHES.md)
 - [Performance engineering and profiling routine](docs/PERFORMANCE.md)
 - [Original priest fixtures and provenance](packages/test-fixtures/README.md)
 - [Work, review, and handoff process](docs/WORKFLOW.md)
@@ -77,4 +78,6 @@ contract and do not establish completed priest animations or export/vertex parit
 
 ## Scope
 
-The first release includes a placeholder priest, bones, editable textured mesh grids, bone-weight painting, five clips, undo/recovery, and shared PixiJS runtime export. Direct vertex animation, IK, and slot-sequence orchestration follow later. See the product plan for authoritative scope and gates.
+The accepted v0.2 direction is one scene canvas and property timeline for raster images, vectors, groups and rigs. First prove symbol import → select/transform → auto-keyframe → preview → save/reopen → standalone export; extend that workflow to SVG/sigils, simple masks and the five priest clips with basic bones.
+
+Mesh authoring, editable topology and painted/numeric weights move to P2. Existing CPU skinning and tests are retained. Vector tracing and optional AI mask proposals follow working manual editing; no model or cloud account is required. See the [product plan](docs/PRODUCT_PLAN.md) for priorities and gates. Product v0.2 does not itself change integer schema versions.

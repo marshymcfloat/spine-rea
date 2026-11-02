@@ -1,6 +1,6 @@
 # Slot Animation Studio: architecture
 
-Decision date: 2026-11-02. Product authority: [PRODUCT_PLAN.md](PRODUCT_PLAN.md).
+Direction updated: 2026-11-03. Product authority: [PRODUCT_PLAN.md](PRODUCT_PLAN.md).
 Working practices: [WORKFLOW.md](WORKFLOW.md).
 
 The repository implements the desktop foundation: `apps/desktop`,
@@ -8,8 +8,11 @@ The repository implements the desktop foundation: `apps/desktop`,
 It also implements strict project/runtime validation in `@studio/schema` and original
 priest data/art in `@studio/test-fixtures`; see [FORMATS.md](FORMATS.md).
 Shared bone/clip evaluation and host-controlled playback are implemented in
-`@studio/animation-core`; see [PLAYBACK.md](PLAYBACK.md). Mesh skinning, the compiler,
-authored editing, persistence and the rendered animation-player concept below remain planned.
+`@studio/animation-core`; see [PLAYBACK.md](PLAYBACK.md). These merged foundations
+still display reference guides. CPU weighted geometry and priest previews are preserved
+in unmerged [SPI-9 draft PR #5](https://github.com/marshymcfloat/slot-animation-studio/pull/5)
+at `0395db1`, with tests and performance evidence; they are not capabilities of `main`.
+The common scene model, direct editing, persistence and export remain planned.
 Record consequential changes here; keep task status
 and execution evidence in [Linear](https://linear.app/spine-rea/project/slot-animation-studio-07e39e20dfb5).
 
@@ -23,15 +26,61 @@ Create packages when their first implementation task needs them, not as empty sc
 | `apps/desktop` | Foundation | Electron/preload, React workspace and reference view controls; authored editing follows. | Local I/O belongs behind validated preload operations; bridge currently reads app info only. |
 | `apps/runtime-demo` | Foundation | Independent browser reference canvas; exported animation loading follows. | Runtime packages only; no editor internals or Electron. |
 | `@studio/schema` | Implemented | Strict versioned authoring/runtime types and validation. | Zod/data only; no React, Electron, Pixi or filesystem access. |
-| `@studio/animation-core` | Bones/playback implemented; skinning planned | Hierarchy transforms, clip sampling, local-channel mixing and host-clock playback/markers. CPU skinning follows. | Pure schema/data/math; no renderer, DOM, I/O or wall clock. |
+| `@studio/scene-core` | Planned | Common node/group hierarchy, scene transforms and evaluated property values. | Pure schema/data/math; no renderer, DOM, I/O or desktop dependencies. |
+| `@studio/animation-core` | Bones/playback implemented; geometry in unmerged SPI-9 proof | Preserve bone sampling, mixing, playback/markers and CPU skinning; extend through the agreed common property-track contract. | Pure schema/data/math; no renderer, DOM, I/O or wall clock. |
 | `@studio/compiler` | Planned | Authoring-to-runtime conversion and asset requirements. | No editor/UI dependency; desktop services write files. |
-| `@studio/runtime-pixi` | Foundation | Reference guides/view fitting; animated geometry rendering follows. | No React, Electron or authoring commands. |
+| `@studio/runtime-pixi` | Foundation; priest rendering in unmerged SPI-9 proof | Reference guides/view fitting; planned common raster/vector/group/mask/rig render adapters consume evaluated scene data. | No React, Electron or authoring commands; no duplicate animation math. |
 | `@studio/slot-events` | Planned | Resolved-event mapping and deterministic sequences. | Presentation only; no outcome/wagering logic. |
 | `@studio/test-fixtures` | Implemented | Original PNG layers, validated priest documents, cloned constructors and deterministic regeneration. | Technical test inputs/provenance, without a compiler or evaluator. |
 
 Desktop services own dialogs, asset import, atomic writes, backups and export output.
 Keep those services separate from React components and pure packages.
 The editor's authored model is serializable data; Pixi objects are derived view state.
+
+Editor-only image preparation, vector tracing and optional segmentation packages are
+planned when their first task needs them. Source/mask preparation must not enter the
+game runtime. AI models, accounts and network access are not prerequisites for editing.
+
+## Shared scene and timeline direction
+
+The v0.2 foundation is a common scene canvas and property timeline. Prove symbol
+import, selection/transforms, auto-keyframing, scrubbing, undo, save/reopen and standalone
+export first; extend it to a vector sigil and then the priest rig workflow. Keep the
+existing Electron/Pixi foundation and tested bone/player APIs. Add small adapters and
+explicit compatibility handling rather than renaming or replacing working subsystems.
+
+The next contract must define stable scene nodes for raster, group, vector and rig
+content, parent relationships, supported properties, masks and asset references.
+Text, emitters, cameras and advanced properties follow their product gates; they are
+not implemented node types today. General property tracks and rig controls share clip
+time, easing, mixing and playback semantics. A rig remains a specialized evaluator
+under the common scene model, not a second unrelated timeline.
+
+Scene parenting and bone parenting have distinct purposes. Preserve the flat authored
+attachment draw order inside a rig; do not derive overlap from either hierarchy.
+Apply a rig node's scene transform once after skeleton-space geometry evaluation.
+The contract must define cross-type composition/order explicitly before implementation.
+
+Read [FORMATS.md](FORMATS.md) before defining that contract. Product v0.2 does not
+change either current integer schema version. Freeze ownership/interfaces and a tested
+version 1 migration or legacy adapter before parallel dependent implementation.
+Keep public pose/player snapshots independent; reuse geometry only through an explicit
+output-ownership API. Selection, viewport and playhead state remain transient; authored
+node/property/mask edits go through undoable document commands.
+
+### Nondestructive import
+
+Planned PNG/JPG/SVG import preserves project-owned originals and records the relationship
+to derived paths, masks and extracted raster layers. Manual crops/masks retain underlying
+pixels. Vector tracing produces editable graphic regions; segmentation proposes raster
+masks. Neither supplies semantic rig parts or hidden anatomy automatically.
+
+Keep file access behind validated desktop services and validate decoded content and
+relative references. SVG support needs a defined safe subset without executable code
+or uncontrolled external resources. Runtime exports contain only required prepared
+graphics, never editor preparation services or AI dependencies. Evaluate tracing and
+optional segmentation separately after manual editing works; profile their bounded,
+cancellable work before choosing workers or caches.
 
 ## Performance architecture
 
@@ -56,20 +105,22 @@ production mesh-capacity or sustained-FPS claim follows from its functional test
 
 ## Data and rendering flow
 
-The following is the target authoring/playback flow. The shared evaluator currently
-produces bone matrices and attachment opacity; mesh geometry, compilation and project
-filesystem services remain planned.
+The following is the planned common authoring/playback flow. The merged evaluator
+currently produces bone matrices and attachment opacity. General scene evaluation,
+compilation and project filesystem services are not implemented; SPI-9 geometry is
+preserved separately as described above.
 
 ```text
-PNG files → desktop import service → project-owned source assets
-UI action → undoable command → validated authored project
-                                      ├→ compiler → runtime data
+PNG/JPG/SVG → validated import → original sources + derived paths/masks
+UI action → undoable command → validated scene/track/rig project
+                                      ├→ compiler → runtime scene/assets
                                       │                  ├→ editor preview
-                                      │                  └→ exported JSON + PNGs
+                                      │                  └→ standalone export
                                       └→ project save/recovery
 
-runtime data + clip/time → animation-core → pose + skinned geometry
-                                         → runtime-pixi → Pixi canvas
+runtime scene + clip/time → shared scene/animation evaluation
+                         → properties + transforms + rig geometry
+                         → runtime-pixi → Pixi canvas
 ```
 
 The preview may refresh compiled data incrementally, but it must not maintain an
@@ -84,16 +135,26 @@ Folder persistence, migration services and export packaging below remain planned
 - Authoring projects are human-readable `.slotstudio` directories with a manifest, JSON data and copied source assets.
 - Use stable identifiers and project-relative asset paths; names are editable labels, not identity.
 - Keep project and runtime schema versions explicit and independent of application release versions.
-- The project retains setup data, editing metadata and original PNGs; the compiler strips editor-only state.
-- v0.1 exports a manifest, validated runtime JSON and original PNG assets with relative references.
+- The project retains editable nodes/tracks/rig setup, source images/SVG, derived paths/masks and provenance; the compiler strips editor-only state.
+- The initial symbol proof exports a manifest, versioned runtime data and required graphics with relative references. Raster, vector and rig playback share the pipeline as their gates arrive.
+- Define the supported SVG/path export subset explicitly. Complex vectors may later be baked to textures after fidelity and performance measurements; do not require atlas optimization for the first proof.
 - Validate before import/save/export; future schema migrations must preserve the original project until a new save succeeds.
 - Autosave drafts and backups are separate from the last successful explicit save; recovery never overwrites that save silently.
 - Later atlas packing remaps UVs and asset references, without changing bind vertices or sampled bone transforms.
 
 Initial project/runtime JSON version 1 is implemented with a weighted fixture.
 No migration, foreign project import or `.skel` compatibility is implemented.
+Retain those fixtures and validators. The next schema contract must specify an explicit
+new integer version and deterministic conversion, or a documented legacy adapter,
+with validation/parity tests; do not relabel version 1 as product v0.2 or silently add fields.
 
 ## Skeleton and weighted meshes
+
+Basic bones remain part of the shared motion MVP. Mesh creation, topology/bind editing,
+painted/numeric weights and rebind UI are P2 authoring work. Retain existing version 1
+mesh data and the SPI-9 CPU proof/tests; this reprioritization does not complete its
+open foreground-performance acceptance or require discarding its implementation.
+The following constraints apply when that preserved geometry is used or extended.
 
 Use 2D affine transforms, pixels, positive X right, positive Y down and radians
 internally. Store all timeline values in seconds. The UI may display degrees or frames.
@@ -104,7 +165,7 @@ The character's scene transform is separate from its skeleton-space evaluation.
 - Keep render attachments in an ordered flat list, separate from the bone hierarchy.
 - An attachment references its texture and rigid binding or weighted mesh; opacity is render data.
 - Meshes contain bind vertices, source-image UVs, triangle indices and per-vertex bone influences.
-- Begin with editable subdivided rectangular grids over transparent PNGs, without contour generation.
+- For P2 authoring, begin with editable subdivided rectangular grids over transparent PNGs, without contour generation.
 - Keep at most four non-negative influences per vertex, normalized to sum to one.
 - Painting and numeric edits share weight normalization; commit each stroke as one undoable command.
 
@@ -125,11 +186,12 @@ mesh under a bone and accidentally apply that bone's transform again.
 Setup edits and rebind are explicit, undoable operations that update affected bind
 data atomically. They must not silently reinterpret animated poses as setup poses.
 Runtime playback keeps topology, UVs and weights fixed; only bones and render channels animate.
-Direct per-vertex animation is outside v0.1.
+Direct per-vertex animation requires its own later contract; it is not provided by CPU bone skinning.
 
-Planned CPU skinning belongs in `animation-core` with reusable private output buffers.
-Public pose snapshots retain their documented isolation. Pixi will consume
-evaluated positions, UVs and indices through its mesh geometry interface. Keep React
+CPU skinning belongs in `animation-core`. The unmerged SPI-9 proof uses caller-owned
+reusable geometry outputs and private staging for atomic writes; it does not pool public
+pose snapshots. Preserve that ownership and numerical/parity evidence when integrating.
+Pixi consumes evaluated positions, UVs and indices through retained geometry. Keep React
 out of frame-by-frame evaluation. Profile before considering a separate GPU path.
 
 ## Playback and public runtime concept
@@ -152,7 +214,9 @@ The host supplies elapsed seconds; one ticker owns updates. Playback supports sp
 loops, one-shots and crossfades. Seeking samples the requested pose without advancing
 an independent clock or emitting playback markers. Named clip markers expose callbacks
 while forward playback crosses them; sequence/audio orchestration follows later.
-The exact initial API is frozen with the Gate 1 runtime fixture.
+Keep the implemented controller contract intact. Define the generalized scene/player
+adapter and loading API explicitly with the symbol proof rather than implying this
+rendered-player concept already exists.
 Rendering must use the same evaluated data whether called by the editor or game.
 
 Later event adapters translate already-resolved game events into visual commands.
@@ -169,26 +233,31 @@ Projects cannot execute code or load plugins. Offline operation is the default.
 
 ### Required architectural evidence
 
-- Fixed timestamps yield matching bone matrices and every skinned vertex before/after compilation.
+- Fixed timestamps yield matching raster/vector/rig properties and transforms before/after compilation; include every skinned vertex when geometry is involved.
+- Version 1 fixtures survive explicit migration/legacy loading without losing IDs, clip/marker semantics, draw order or bind data.
+- Symbol transforms and auto-keyframing preserve unrelated tracks through undo/redo and save/reopen; vector/sigil playback uses the same timeline/runtime path.
+- Source raster/SVG files survive masking, tracing and extraction; derived assets retain their provenance.
 - Bind pose reproduces source geometry; single/multiple influences and nested/mirrored transforms behave consistently.
 - Preview and standalone runtime cover loops, reverse scrubbing and crossfades with the same fixtures.
-- Serialization, undo/redo, rebind and crash recovery preserve authored data and stable references.
+- Serialization, undo/redo and crash recovery preserve authored data and stable references; add rebind evidence with P2 mesh tools.
 - Invalid weights, indices, assets and schema versions produce actionable validation errors.
 - Electron smoke checks exercise real import/save/reopen/export; geometry tests alone do not validate interaction.
 
 ## Decision log
 
 Initial decisions were accepted on 2026-11-02; subsequent entries record their date and rationale.
+The v0.2 decision below supersedes the earlier mesh-first release priority while
+preserving its implemented formats, math and tests.
 
 | Decision | Rationale | Deferred alternative |
 | --- | --- | --- |
-| Original Electron/React/TypeScript editor | Own the product model and keep a consistent desktop/browser toolchain. | Forking an existing editor; replacing Electron with Tauri. |
+| Electron/React/TypeScript editor foundation | Own the product model and keep a consistent desktop/browser toolchain. | Shell replacement only after a worthwhile identical-scene benchmark; no rewrite required. |
 | PixiJS preview and game adapter | Keep rendering close to The Ninth Rite's intended runtime. | Other engine adapters. |
-| Meshes and weight painting in v0.1 | Flexible priest robes/sleeves are part of initial usability. | Direct vertex animation, IK and advanced meshing. |
+| Historical: meshes and weight painting in v0.1; superseded 2026-11-03 | Original rig-first priority. v0.2 proves direct symbol motion first and moves mesh authoring to P2. | Preserved CPU proof; advanced mesh tools follow later. |
 | Shared CPU skinning first | One deterministic evaluator makes correctness and parity testable. | GPU skinning after measured need. |
 | Flat attachment draw order | Visual overlap must not depend on bone ancestry. | Advanced depth/compositing systems. |
 | Explicit setup/rebind and seconds timing | Avoid ambiguous bind changes and frame-rate-dependent data. | Implicit rebinding and frame-index-only timelines. |
-| Placeholder art and original PNG exports first | Prove the full authoring/playback path before art and atlas optimization. | Lossless import of existing priest deformation; automatic art preparation. |
+| Preserve placeholder art and simple initial graphic exports | Prove shared authoring/playback before art and atlas optimization; v0.2 adds raster/vector symbol proof first. | Lossless import of existing priest deformation; automatic art preparation. |
 | Resolved-event presentation only | Preserve the game's separate ownership of results and mathematics. | Outcome generation and wagering features are excluded. |
 
 ### Foundation implementation: 2026-11-02
@@ -225,3 +294,20 @@ use provisional targets until representative hardware baselines exist. Preserve 
 public snapshots and shared evaluation, and optimize measured costs rather than adding
 speculative parallelism or weakening security. FPS and capacity claims remain unverified
 until captured on the applicable rendered workload.
+
+### Unified motion direction supersedes mesh-first delivery: 2026-11-03
+
+- Adopt the approved v0.2 product direction: one scene canvas, property timeline and
+  rendering/export pipeline. The symbol/sigil proof precedes the layered priest/basic
+  bone workflow; mesh authoring and painted/numeric weights move to P2. This changes
+  delivery priority, not the validity of existing CPU geometry or fixture tests.
+- Preserve the merged Electron/Pixi/schema/bone/player foundation and unmerged SPI-9
+  proof. Keep its open performance criterion and evidence in Linear/PR #5; do not
+  treat reprioritization as a merge or a completed measurement. Electron remains the
+  provisional Windows shell, with its bridge replaceable independently of data/math.
+- Establish common scene/property and asset-provenance contracts before implementation.
+  Product labels remain independent of format integers; preserve version 1 through a
+  tested migration or legacy adapter. Keep pure shared evaluation, snapshot isolation,
+  flat rig draw order and current security/performance rules.
+- Manual nondestructive PNG/JPG/SVG editing and masks precede optional vector tracing
+  and AI mask experiments. Exported games do not require those preparation services.

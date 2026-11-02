@@ -10,18 +10,19 @@
 
 ## Product boundaries
 
-- Build the approved original, offline-first Windows editor with Electron, React, TypeScript, and PixiJS.
-- First release includes placeholder priest art, hierarchical bones, editable textured meshes, painted/numeric bone weights, and all five priest clips.
-- Weighted meshes support up to four normalized influences per vertex. Direct vertex animation and IK are deferred.
+- Build the approved original, offline-first Windows unified motion editor with Electron, React, TypeScript, and PixiJS. Preserve the working shell and shared runtime.
+- Follow v0.2: one scene canvas and property timeline. Prove symbol import/transform/auto-keyframe/save/export first, then SVG/simple masks and basic priest rigging with all five clips.
+- Mesh authoring, topology/rebind UI and painted/numeric weights are P2. Preserve existing CPU mesh evaluation, fixtures and tests with up to four normalized influences; direct vertex animation and IK remain later work.
+- Keep source assets and derived vectors/masks distinct. AI segmentation/vector tracing are optional later workflows, not prerequisites for basic offline editing.
 - Consume already-resolved game events. Outcome generation, wagering, balances, and payout logic are outside this product.
-- The current implementation includes the desktop foundation, reference canvas, schemas/fixtures, and shared bone/clip evaluation and playback. Weighted-mesh evaluation, authoring tools, persistence, and runtime export remain planned; check the README before describing capabilities.
+- The merged foundation includes the desktop/reference canvas, schemas/fixtures and shared bone/clip playback. SPI-9 preserves CPU geometry/fixture previews separately; consult README and Linear for its evidence. Unified authoring, persistence and export remain planned.
 
 ## Architecture and editing
 
 - Keep schema and animation evaluation independent of Electron, React, and PixiJS.
 - Read [format contracts](docs/FORMATS.md) before changing schemas, fixtures, evaluation, or compilation.
-- Read [playback semantics](docs/PLAYBACK.md) before changing evaluation, timing, blending, or markers.
-- Use the same evaluator for editor preview and exported runtime: bone transforms, interpolation, blending, markers, and CPU mesh skinning.
+- Read [playback semantics](docs/PLAYBACK.md) before changing evaluation, timing, blending, or markers, and [geometry ownership](docs/MESHES.md) before changing skinning/rendering/lifetimes.
+- Extend the shared evaluator for scene properties and rigs; editor and export must share interpolation, blending, markers and skinning. Agree on node/track contracts and explicit version 1 compatibility before implementation.
 - Keep attachment draw order separate from bone hierarchy. The Pixi adapter renders evaluated geometry; it does not duplicate animation math.
 - Route all authored project changes through undoable document commands. Transient selection/view state is separate.
 - Keep Setup and Animate modes distinct; bind-pose/topology changes and rebinding are explicit undoable operations.
@@ -66,4 +67,4 @@
 
 - Flag duplicated animation math, bone-dependent draw order, non-undoable document edits, or runtime imports of desktop/UI dependencies.
 - Flag claims of parity, recovery, or performance without corresponding evidence.
-- Check first-release mesh scope and supported data versions whenever formats or compiler behavior change.
+- Flag mesh authoring becoming a first-release prerequisite, duplicated property timelines, destructive import, or unversioned format changes.
