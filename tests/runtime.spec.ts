@@ -3,7 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { resolve, relative, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
-import { checkPreview, snapshot } from './preview-checks';
+import { checkPreview, clickControl, resumePreviewClock, snapshot } from './preview-checks';
 
 let server: Server;
 let address: string;
@@ -29,15 +29,17 @@ test.afterAll(async () => {
 });
 
 test.afterEach(async ({ page }, info) => {
-  if (info.status === info.expectedStatus) return;
   try {
-    await writeFile(info.outputPath('runtime-diagnostics.json'), JSON.stringify(await page.evaluate(() => ({
-      url: location.href, visibility: document.visibilityState, focused: document.hasFocus(),
-      status: document.getElementById('status')?.textContent,
-      alert: document.querySelector('[role="alert"]')?.textContent,
-      snapshot: window.__studioPreview?.snapshot() ?? null,
-    })), null, 2));
-  } catch (error) { await writeFile(info.outputPath('runtime-diagnostics.json'), JSON.stringify({ error: String(error) })); }
+    if (info.status === info.expectedStatus) return;
+    try {
+      await writeFile(info.outputPath('runtime-diagnostics.json'), JSON.stringify(await page.evaluate(() => ({
+        url: location.href, visibility: document.visibilityState, focused: document.hasFocus(),
+        status: document.getElementById('status')?.textContent,
+        alert: document.querySelector('[role="alert"]')?.textContent,
+        snapshot: window.__studioPreview?.snapshot() ?? null,
+      })), null, 2));
+    } catch (error) { await writeFile(info.outputPath('runtime-diagnostics.json'), JSON.stringify({ error: String(error) })); }
+  } finally { await resumePreviewClock(page); }
 });
 
 test('standalone build shares geometry, transport and cached-page lifetime without desktop services', async ({ page, context }, info) => {
@@ -61,7 +63,7 @@ test('standalone build shares geometry, transport and cached-page lifetime witho
     dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
   });
   expect((await snapshot(page)).geometry).toEqual(before.geometry);
-  await page.getByRole('button', { name: 'Play', exact: true }).click();
+  await clickControl(page.getByRole('button', { name: 'Play', exact: true }));
   await page.clock.runFor(200);
   expect((await snapshot(page)).state.elapsedSeconds).toBeGreaterThan(.05);
   await page.evaluate(() => dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true })));
@@ -72,7 +74,7 @@ test('standalone build shares geometry, transport and cached-page lifetime witho
   await page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })));
   await page.clock.runFor(200);
   expect((await snapshot(page)).state.elapsedSeconds).toBeGreaterThan(hidden.state.elapsedSeconds);
-  await page.getByRole('button', { name: 'Pause', exact: true }).click();
+  await clickControl(page.getByRole('button', { name: 'Pause', exact: true }));
   await page.screenshot({ path: info.outputPath('runtime-preview.png') });
   expect(errors).toEqual([]);
   expect(unexpectedRequests).toEqual([]);

@@ -2,7 +2,7 @@ import { existsSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { _electron as electron, expect, test, type Page } from '@playwright/test';
-import { checkPreview, snapshot } from './preview-checks';
+import { canvasPixels, checkPreview, clickControl, resumePreviewClock, snapshot } from './preview-checks';
 
 const repositoryRoot = fileURLToPath(new URL('../', import.meta.url));
 
@@ -126,7 +126,7 @@ test('packaged desktop canvas works offline with an isolated preload boundary', 
 
     await checkPreview(page);
 
-    await page.getByRole('button', { name: 'Play', exact: true }).click();
+    await clickControl(page.getByRole('button', { name: 'Play', exact: true }));
     await page.clock.runFor(200);
     expect((await snapshot(page)).state.elapsedSeconds).toBeGreaterThan(.05);
     await page.evaluate(() => dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true })));
@@ -137,30 +137,30 @@ test('packaged desktop canvas works offline with an isolated preload boundary', 
     await page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })));
     await page.clock.runFor(200);
     expect((await snapshot(page)).state.elapsedSeconds).toBeGreaterThan(hidden.state.elapsedSeconds);
-    await page.getByRole('button', { name: 'Stop', exact: true }).click();
+    await clickControl(page.getByRole('button', { name: 'Stop', exact: true }));
 
     const zoomValue = page.getByTestId('zoom-value');
-    await page.getByRole('button', { name: 'Fit artboard', exact: true }).click();
+    await clickControl(page.getByRole('button', { name: 'Fit artboard', exact: true }));
     const fitZoomText = await zoomValue.innerText();
     const fitZoom = Number.parseFloat(fitZoomText);
     expect(Number.isFinite(fitZoom)).toBe(true);
-    await page.getByRole('button', { name: 'Zoom in', exact: true }).click();
+    await clickControl(page.getByRole('button', { name: 'Zoom in', exact: true }));
     await expect.poll(async () => Number.parseFloat(await zoomValue.innerText())).toBeGreaterThan(fitZoom);
     const zoomedIn = Number.parseFloat(await zoomValue.innerText());
-    await page.getByRole('button', { name: 'Zoom out', exact: true }).click();
+    await clickControl(page.getByRole('button', { name: 'Zoom out', exact: true }));
     await expect.poll(async () => Number.parseFloat(await zoomValue.innerText())).toBeLessThan(zoomedIn);
-    await page.getByRole('button', { name: 'Zoom in', exact: true }).click();
-    await page.getByRole('button', { name: 'Fit artboard', exact: true }).click();
+    await clickControl(page.getByRole('button', { name: 'Zoom in', exact: true }));
+    await clickControl(page.getByRole('button', { name: 'Fit artboard', exact: true }));
     await expect(zoomValue).toHaveText(fitZoomText);
 
     const gridButton = page.getByRole('button', { name: 'Grid', exact: true });
     const initialGrid = await gridButton.getAttribute('aria-pressed');
     expect(initialGrid).toMatch(/^(true|false)$/);
-    const initialGridPixels = await canvas.screenshot();
-    await gridButton.click();
+    const initialGridPixels = await canvasPixels(page);
+    await clickControl(gridButton);
     await expect(gridButton).toHaveAttribute('aria-pressed', initialGrid === 'true' ? 'false' : 'true');
-    await expect.poll(async () => (await canvas.screenshot()).equals(initialGridPixels)).toBe(false);
-    await gridButton.click();
+    await expect.poll(async () => (await canvasPixels(page!)).equals(initialGridPixels)).toBe(false);
+    await clickControl(gridButton);
     await expect(gridButton).toHaveAttribute('aria-pressed', initialGrid!);
 
     const initialCanvasWidth = (await canvas.boundingBox())?.width;
@@ -209,6 +209,10 @@ test('packaged desktop canvas works offline with an isolated preload boundary', 
     expect(processErrors, 'The Electron process must remain healthy.').toEqual([]);
     expect(childProcess.exitCode).toBeNull();
   } finally {
+    if (page && !page.isClosed()) {
+      try { await resumePreviewClock(page); }
+      catch (error) { diagnostics.push(`Clock resume failed: ${String(error)}`); }
+    }
     if (page && !page.isClosed() && !screenshotCaptured) {
       try {
         diagnostics.push(`Page content: ${await page.locator('body').innerText({ timeout: 2_000 })}`);
@@ -220,6 +224,7 @@ test('packaged desktop canvas works offline with an isolated preload boundary', 
       }
     }
     try {
+      if (page && !page.isClosed()) await page.close();
       await application.close();
     } finally {
       const diagnosticsPath = testInfo.outputPath('electron-diagnostics.json');
