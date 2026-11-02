@@ -19,6 +19,8 @@ Do not mirror issue states into a Markdown backlog, status page, or handoff log.
 2. Read the latest issue progress/evidence and referenced commit or PR. Prefer verified code when old notes disagree, and correct the notes.
 3. Continue the assigned In Progress issue, or select the highest-priority Todo issue whose blockers are Done. Keep one primary issue in progress per agent; do not move a blocked task forward silently.
 4. Confirm outcome, acceptance criteria, dependencies, and intended verification before editing. Fill missing implementation decisions in the issue or architecture document.
+   For performance-sensitive work, follow [PERFORMANCE.md](PERFORMANCE.md): define the
+   workload/device/targets and capture an existing-path baseline before optimizing.
 5. Create an issue branch such as `SPI-7-formats-fixtures`. The initial harness is bootstrapped on `main`; later changes use linked pull requests.
 
 Use the Spine-rea team states: **Backlog -> Todo -> In Progress -> In Review -> Done**. A blocked issue keeps its current state and records its dependency/blocker and required next action. Use Canceled or Duplicate only when appropriate. Confirm that the integration exposes the `spine-rea` workspace before making updates.
@@ -45,6 +47,8 @@ Issue links and the specific interface or result needed; otherwise None.
 ## Verification evidence
 Exact commands and results; commit/PR links; relevant visual evidence.
 State clearly when a check was not run or failed.
+Performance impact: affected path, workload/device/targets and before/after evidence
+or first baseline for a new path; otherwise explain why runtime profiling is inapplicable.
 
 ## Progress and next action
 Completed work, remaining work, blocker if any, and one exact next action.
@@ -64,6 +68,9 @@ Keep tasks small enough to verify independently. Prefer a complete path such as 
 
 1. Review the final diff for unrelated changes, secrets, generated files, stale instructions, and architecture violations.
 2. Run checks appropriate to the changed behavior and record actual results. Use the [pull request template](../.github/pull_request_template.md).
+   Include applicable profiling for performance-sensitive changes. Resolve unexplained
+   or out-of-budget regressions/stutters/leaks; document measured correctness/security
+   tradeoffs within agreed budgets. Missing evidence remains an open criterion.
 3. Open/link the PR and put the issue In Review when implementation is ready. Independent review is preferred when available; solo review must still inspect the diff and evidence.
 4. Merge only after applicable checks and acceptance criteria pass. Record the final commit/PR and any material limitation, then move the issue to Done.
 
@@ -76,7 +83,7 @@ Keep tasks small enough to verify independently. Prefer a complete path such as 
 | Document editing | Undo/redo behavior for the operation |
 | Persistence/assets | Save/reopen, missing-asset behavior, or interrupted-save recovery as relevant |
 | Packaging | Installed offline Windows smoke test with environment recorded |
-| Performance | Hardware, fixture size, texture/vertex counts, and measured result |
+| Performance-sensitive change | PERFORMANCE.md routine: workload/device/targets, frame/stall metrics for rendered paths, relevant CPU/startup/I/O/allocation/lifecycle measurements, comparable evidence and correctness checks |
 
 Working commands are in the README. The foundation implements type checks, unit tests, portable Windows packaging, and a packaged Electron smoke test. Shared core tests cover bone/clip sampling and playback boundaries. Export/vertex parity, authored document commands and persistence require their own checks as those subsystems arrive; the foundation smoke test does not verify them.
 

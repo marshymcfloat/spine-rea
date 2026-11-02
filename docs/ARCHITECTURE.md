@@ -33,6 +33,27 @@ Desktop services own dialogs, asset import, atomic writes, backups and export ou
 Keep those services separate from React components and pure packages.
 The editor's authored model is serializable data; Pixi objects are derived view state.
 
+## Performance architecture
+
+Follow [PERFORMANCE.md](PERFORMANCE.md) for implementation choices, provisional budgets,
+workload/device definitions, profiling and review evidence. Frame stability, input
+responsiveness, startup and resource lifetime are design requirements.
+
+- Keep Electron event loops responsive and IPC coarse; sustained background jobs need
+  cancellation, bounded queues and revision-aware results.
+- Keep a single host-controlled frame path. React handles editor UI state; the shared
+  evaluator and Pixi adapter handle animation without per-frame UI commits or IPC.
+- Build validated data/index caches at document revisions, with explicit invalidation.
+  Reuse private mesh/adapter buffers when introduced while preserving public snapshots.
+- Give rendering resources and asynchronous work explicit owners and cleanup paths,
+  including cached-page restoration and project changes.
+- Select workers, batching, culling, caching or GPU evaluation from measured bottlenecks.
+  Preserve draw order, parity, recovery and security; verify performance changes in
+  the packaged application and the applicable standalone host.
+
+The current evaluator/controller returns independent allocated snapshots. No zero-allocation,
+production mesh-capacity or sustained-FPS claim follows from its functional tests.
+
 ## Data and rendering flow
 
 The following is the target authoring/playback flow. The shared evaluator currently
@@ -106,7 +127,8 @@ data atomically. They must not silently reinterpret animated poses as setup pose
 Runtime playback keeps topology, UVs and weights fixed; only bones and render channels animate.
 Direct per-vertex animation is outside v0.1.
 
-CPU skinning lives in `animation-core` and reuses output arrays. Pixi consumes
+Planned CPU skinning belongs in `animation-core` with reusable private output buffers.
+Public pose snapshots retain their documented isolation. Pixi will consume
 evaluated positions, UVs and indices through its mesh geometry interface. Keep React
 out of frame-by-frame evaluation. Profile before considering a separate GPU path.
 
@@ -156,7 +178,7 @@ Projects cannot execute code or load plugins. Offline operation is the default.
 
 ## Decision log
 
-All decisions below were accepted on 2026-11-02; revise with dated rationale when needed.
+Initial decisions were accepted on 2026-11-02; subsequent entries record their date and rationale.
 
 | Decision | Rationale | Deferred alternative |
 | --- | --- | --- |
@@ -194,3 +216,12 @@ All decisions below were accepted on 2026-11-02; revise with dated rationale whe
 - Blend local channels before computing matrices. Normal fades advance both clips; interrupted fades capture a frozen mixed pose. Clip and fade clocks use host elapsed seconds scaled by playback speed; pause/speed zero freeze them.
 - Return marker records from updates so hosts dispatch callbacks outside evaluation. Seeking is silent and cancels fades. Preserve unwrapped loop cursors, stable boundary/tie order and pending start markers. Reject unsafe derived arithmetic or more than 10,000 events before changing controller state.
 - Own independent snapshots at input/output boundaries. Renderer-free tests compare authoring/runtime fixture bones and opacity after JSON serialization. These checks do not establish compiler, skinned-vertex or visual parity; mesh evaluation follows separately.
+
+### Performance development policy: 2026-11-03
+
+Keep concise mandatory rules in AGENTS.md and the measurement/implementation routine
+in PERFORMANCE.md. Require measured workload/device evidence for affected runtime paths;
+use provisional targets until representative hardware baselines exist. Preserve safe
+public snapshots and shared evaluation, and optimize measured costs rather than adding
+speculative parallelism or weakening security. FPS and capacity claims remain unverified
+until captured on the applicable rendered workload.

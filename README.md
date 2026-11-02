@@ -11,6 +11,7 @@ This repository implements an Electron/React workspace with a PixiJS reference c
 - [Architecture and technical decisions](docs/ARCHITECTURE.md)
 - [Implemented data formats](docs/FORMATS.md)
 - [Shared evaluation and playback API](docs/PLAYBACK.md)
+- [Performance engineering and profiling routine](docs/PERFORMANCE.md)
 - [Original priest fixtures and provenance](packages/test-fixtures/README.md)
 - [Work, review, and handoff process](docs/WORKFLOW.md)
 - [Linear project](https://linear.app/spine-rea/project/slot-animation-studio-07e39e20dfb5)

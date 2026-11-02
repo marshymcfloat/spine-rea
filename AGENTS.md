@@ -36,6 +36,14 @@
 - Use separate worktrees for concurrent implementation. Do not concurrently edit shared files; integrate and check dependencies before merging.
 - Do not add a second backlog, status file, handoff file, or daily progress log in Markdown.
 
+## Efficiency and performance
+
+- Read [performance engineering](docs/PERFORMANCE.md) before changes affecting playback, rendering, interaction, assets, IPC, startup, dependencies or resource lifetime.
+- Prefer simple bounded work, existing packages and revision-time precomputation. Profile before adding optional caches, workers, GPU paths or memoization; keep application event loops responsive.
+- Use one host clock/render path, keep React/IPC/serialization outside frame-critical work, and define resource ownership and cleanup.
+- Preserve snapshot isolation, undo/marker semantics, parity and Electron security while optimizing. Measure allocations before changing ownership APIs.
+- Performance-sensitive work needs applicable workload/device measurements. Resolve unexplained or out-of-budget regressions before Done; document measured correctness/security tradeoffs within agreed budgets. Tests and screenshots alone do not prove FPS or memory behavior.
+
 ## Verification and completion
 
 - Run `pwsh -NoProfile -File ./scripts/check-harness.ps1` for documentation/harness changes.

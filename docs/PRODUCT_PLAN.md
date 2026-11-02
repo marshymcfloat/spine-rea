@@ -110,6 +110,8 @@ These are required checks to implement, not claims that tests already exist or p
 - Test Windows installation and offline create → import → rig → animate → save → reopen → export → play.
 - Measure the representative priest workload, texture use and frame times on the development PC and a lower-spec Windows machine.
 - Treat 60 FPS as a measured target; record devices and workload before claiming performance.
+- Follow [performance engineering](PERFORMANCE.md) for frame stability, responsiveness,
+  resource lifetime, profiling evidence and regression checks throughout development.
 - For slot gates, test rapid events, pause/resume, reduced motion, fast mode and skip/end-state resolution.
 
 ## Deferred scope
