@@ -12,9 +12,10 @@ caches, GPU paths or memoization need measured benefit and an ownership/invalida
 
 Targets below are provisional project targets. The reference canvas, unit tests
 and browser VM check do not establish measured animation FPS or production capacity.
-The current core deliberately allocates independent pose/player snapshots. Geometry
-uses explicit caller-owned reusable buffers through [MESHES.md](MESHES.md), with
-private staging for atomic writes. Preserve these ownership facts when describing performance.
+The merged core deliberately allocates independent snapshots. CPU skinning and explicit
+reusable geometry outputs are preserved in the unmerged SPI-9 proof; see
+[MESHES.md](MESHES.md). Its incomplete physical-performance acceptance remains in Linear.
+Product v0.2 adds a symbol-first workload without discarding the priest/stress diagnostics.
 
 ## Development and review routine
 
@@ -135,14 +136,15 @@ For a useful capture:
 - Use a packaged release or a release-equivalent local diagnostic build; measure the
   standalone browser separately. Record commit, Windows/CPU/GPU/RAM, drivers, power mode,
   Electron/Chromium/Pixi versions, display refresh, viewport, DPR and renderer resolution.
-- Separate deterministic functional checks from native cadence measurements. Automation
-  can emulate page visibility/focus and change background scheduling. Record launch
-  settings, use real foreground state for physical captures, and preserve/reject captures
-  that lose focus or become hidden. A forced visible DOM flag does not prove an unoccluded window.
-- Use the priest fixture for playback/crossfades/markers and interactions available at
-  the current stage. Add a reproducible bounded stress fixture with recorded rig, bone,
-  track/key, vertex, influence, attachment, texture-size and draw-call counts. The
-  current nine-vertex robe alone cannot establish production capacity.
+- For the v0.2 symbol proof, record image sizes/source pixels, scene depth/node count,
+  keyed properties/tracks/keys, viewport/DPR, draw calls and the three-key timeline.
+  Measure selection/transform/auto-keyframe, scrub, save/reopen and exported playback
+  as those operations exist. Add SVG/path count, masks and mixed rig content when
+  supported; preserve source fidelity and avoid claiming unimplemented workloads.
+- Retain the priest fixture for bone playback/crossfades/markers and the SPI-9
+  original/stress diagnostics when geometry is affected. Record rig, bone, track/key,
+  vertex, influence, attachment and texture counts. Neither a tiny symbol nor the
+  nine-vertex robe establishes production capacity; mesh authoring remains P2.
 - For steady rendered playback/interaction, warm up, capture at least 30 seconds and
   repeat three times with comparable focus/load/settings. For CPU/I/O jobs measure
   defined operations over repeated runs; for lifecycle work record repeated cycle counts.

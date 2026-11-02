@@ -3,8 +3,11 @@
 Decision date: 2026-11-02. Data shapes: [FORMATS.md](FORMATS.md).
 `@studio/animation-core` owns these rules for both editor and standalone hosts.
 It uses schema data and math, with no renderer, DOM, filesystem or wall clock.
-Shared CPU geometry and fixture rendering use [MESHES.md](MESHES.md).
-Export compilation remains a separate task.
+CPU geometry/fixture rendering are preserved in the separate SPI-9 proof; see
+[MESHES.md](MESHES.md). Export compilation and general scene/property playback remain
+planned. Under product v0.2, extend these same time/easing/mixing/marker semantics
+through the agreed node/track adapter; do not introduce a separate symbol timeline
+or change this public rig/controller contract implicitly.
 
 ```ts
 import { createRigEvaluator, createPlaybackController } from '@studio/animation-core';

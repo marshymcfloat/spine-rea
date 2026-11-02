@@ -1,6 +1,11 @@
 # Shared geometry contract
 
-Decision date: 2026-11-03. Implementation tracked in SPI-9. Read
+Decision date: 2026-11-03. Preserved implementation contract from
+[SPI-9 / draft PR #5](https://github.com/marshymcfloat/slot-animation-studio/pull/5).
+That proof remains separate from the merged foundation while its performance
+acceptance is open. Product v0.2 retains this work and moves mesh authoring,
+topology/rebind UI and painted/numeric weights to P2. The API below describes
+the retained proof; it does not claim those authoring tools exist. Read
 [formats](FORMATS.md), [playback](PLAYBACK.md) and [performance](PERFORMANCE.md).
 
 `createGeometryEvaluator(document, rigId)` snapshots validated data at a document
