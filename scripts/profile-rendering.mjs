@@ -17,13 +17,16 @@ const option = (name, fallback) => args.includes(name) ? args[args.indexOf(name)
 const buildRoot = resolve(option('--build-root', root));
 const host = option('--host', 'desktop');
 const baseline = args.includes('--baseline');
+const tracing = !args.includes('--no-trace');
 const seconds = Number(option('--seconds', baseline ? '5' : '30'));
 const runs = Number(option('--runs', baseline ? '1' : '3'));
 const stressGridSide = Number(option('--stress', '0'));
 const label = option('--label', `${host}-${baseline ? 'foundation' : stressGridSide ? 'stress' : 'priest'}`);
+const focusTimeout = Number(option('--focus-timeout', '120000'));
 if (!['desktop', 'browser'].includes(host) || !Number.isFinite(seconds) || seconds <= 0 || seconds > 120 ||
     !Number.isInteger(runs) || runs < 1 || runs > 10 || !/^[a-zA-Z0-9_-]+$/.test(label) ||
-    !Number.isInteger(stressGridSide) || (stressGridSide !== 0 && (stressGridSide < 3 || stressGridSide > 129))) {
+    !Number.isInteger(stressGridSide) || (stressGridSide !== 0 && (stressGridSide < 3 || stressGridSide > 129)) ||
+    !Number.isFinite(focusTimeout) || focusTimeout < 1000 || focusTimeout > 600000) {
   throw new Error('Use --host desktop|browser, --seconds 1..120, --runs 1..10, safe --label and --stress 3..129.');
 }
 const output = resolve(root, 'test-results/performance', label);
@@ -89,8 +92,17 @@ async function installDiagnostics(target) {
 }
 
 async function readiness() {
-  await page.waitForFunction(() => [...document.querySelectorAll('[role="status"]')].some((node) => node.textContent.includes('Canvas ready')), null, { polling: 50 });
-  if (!baseline) await page.waitForFunction(() => !!window.__studioPreview, null, { polling: 50 });
+  await waitForPage(() => [...document.querySelectorAll('[role="status"]')].some((node) => node.textContent.includes('Canvas ready')), 'canvas readiness');
+  if (!baseline) await waitForPage(() => !!window.__studioPreview, 'diagnostic readiness');
+}
+
+async function waitForPage(condition, label, timeout = 30_000) {
+  const deadline = performance.now() + timeout;
+  while (performance.now() < deadline) {
+    if (await page.evaluate(condition)) return;
+    await wait(100);
+  }
+  throw new Error(`Timed out waiting for ${label}.`);
 }
 
 function listenForErrors(target) {
@@ -132,7 +144,7 @@ async function endTrace(session, file) {
 const report = { label, host, baseline, stressGridSide, sourceCommit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: buildRoot, encoding: 'utf8' }).trim(),
   uncommittedChanges: Boolean(execFileSync('git', ['status', '--porcelain'], { cwd: buildRoot, encoding: 'utf8' }).trim()),
   capturedAt: new Date().toISOString(), environment: { platform: process.platform, osRelease: release(), node: process.version, cpu: cpus()[0]?.model, ramBytes: totalmem(), powerMode: null, displayRefreshHz: null },
-  methodology: { seconds, runs, warmupSeconds: baseline ? 2 : 5, build: 'packaged Electron / Vite production browser build',
+  methodology: { seconds, runs, tracing, warmupSeconds: baseline ? 2 : 5, build: 'packaged Electron / Vite production browser build',
     instrumentation: 'Opt-in phase timings, WebGL draw-call wrapper, long-task observer and CDP trace. Timing overhead is included; render submission is not GPU completion. Idle is not an FPS measurement.' }, runs: [], errors };
 try {
   report.environment.windows = JSON.parse(execFileSync('pwsh', ['-NoProfile', '-Command', '[pscustomobject]@{OS=(Get-CimInstance Win32_OperatingSystem | Select-Object Caption,Version,BuildNumber);GPU=(Get-CimInstance Win32_VideoController | Select-Object Name,DriverVersion,CurrentRefreshRate);Power=(powercfg /getactivescheme)} | ConvertTo-Json -Depth 4'], { encoding: 'utf8' }));
@@ -172,13 +184,14 @@ try {
     report.versions = { browser: browser.version() };
   }
   await readiness();
+  console.log(`${label}: canvas and diagnostics ready`);
   report.launchReloadToReadyMs = performance.now() - started;
   report.startupLimit = 'Includes diagnostic reload for desktop; not a cold-start claim.';
   await page.bringToFront();
   session = await page.context().newCDPSession(page);
   await session.send('Emulation.setFocusEmulationEnabled', { enabled: false });
   await page.bringToFront();
-  await page.waitForFunction(() => !document.hidden && document.hasFocus(), null, { polling: 50 });
+  await waitForPage(() => !document.hidden && document.hasFocus(), 'native foreground focus', focusTimeout);
   report.methodology.focusEmulation = false;
   await session.send('Performance.enable');
   report.renderer = await page.evaluate(() => {
@@ -192,11 +205,13 @@ try {
   await wait(baseline ? 2000 : 5000);
   for (let run = 0; run < runs; run++) {
     await page.bringToFront();
-    await page.waitForFunction(() => !document.hidden && document.hasFocus(), null, { polling: 50 });
+    await waitForPage(() => !document.hidden && document.hasFocus(), 'native foreground focus', focusTimeout);
     await wait(1000);
     const before = await metrics(session);
     const processBefore = application ? await application.evaluate(({ app }) => app.getAppMetrics()) : null;
-    await session.send('Tracing.start', { categories: 'devtools.timeline,disabled-by-default-devtools.timeline.frame,v8,gpu,cc,viz,blink.user_timing', options: 'record-as-much-as-possible', transferMode: 'ReturnAsStream' });
+    if (tracing) await session.send('Tracing.start', { categories: 'devtools.timeline,disabled-by-default-devtools.timeline.frame,v8,gpu,cc,viz,blink.user_timing', options: 'record-as-much-as-possible', transferMode: 'ReturnAsStream' });
+    await page.bringToFront();
+    await waitForPage(() => !document.hidden && document.hasFocus(), 'recording foreground focus', focusTimeout);
     const captureStarted = await page.evaluate(() => {
       window.__profileLongTasks = []; window.__profileDrawCalls = 0;
       window.__profileVisibilityEvents = [];
@@ -220,7 +235,7 @@ try {
     const durationMs = captured.endedAt - captureStarted;
     const after = await metrics(session);
     const processAfter = application ? await application.evaluate(({ app }) => app.getAppMetrics()) : null;
-    const trace = await endTrace(session, resolve(output, `run-${run + 1}.trace.json.gz`));
+    const trace = tracing ? await endTrace(session, resolve(output, `run-${run + 1}.trace.json.gz`)) : { collected: false, eventCounts: {}, limit: 'Untraced cadence/phase capture; no trace-confirmed dropped-frame total.' };
     const phases = {};
     for (const key of ['frameIntervalsMs', 'evaluationMs', 'skinningMs', 'uploadMs', 'renderMs', 'totalMs']) phases[key] = summary(captured.captured?.[key] ?? []);
     const evaluation = captured.captured?.evaluationMs ?? [], skinning = captured.captured?.skinningMs ?? [];
@@ -261,7 +276,7 @@ try {
 } catch (error) {
   errors.push(String(error)); process.exitCode = 1;
   try {
-    report.failureState = await page?.evaluate(() => ({ url: location.href, hidden: document.hidden, focused: document.hasFocus(), body: document.body.innerText.slice(0, 3000) }));
+    report.failureState = await page?.evaluate(() => ({ url: location.href, hidden: document.hidden, focused: document.hasFocus(), diagnosticRequested: window.__studioDiagnosticsRequested ?? null, previewPresent: !!window.__studioPreview, instrumentationPresent: Array.isArray(window.__profileLongTasks), body: document.body.innerText.slice(0, 3000) }));
     await page?.screenshot({ path: resolve(output, 'failure.png'), timeout: 5000 });
   } catch { /* The failed target may already be closed. */ }
 } finally {
