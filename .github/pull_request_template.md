@@ -1,0 +1,24 @@
+## Problem and resulting behavior
+
+Describe the concrete problem and what changes for the user or developer.
+
+## Related Linear issue
+
+Link the issue and identify the acceptance criteria addressed.
+
+## Validation evidence
+
+- Commands and actual results:
+- UI/visual, parity, recovery, or packaging evidence where applicable:
+- Checks not run, with reason:
+
+## Remaining limitations
+
+List known limitations, follow-up issues, or None.
+
+## Review
+
+- [ ] Acceptance criteria demonstrated and issue updated.
+- [ ] Relevant checks pass; failures and unrun checks are disclosed.
+- [ ] Scope, architecture, setup, or workflow docs updated when affected.
+- [ ] Diff contains no credentials, unintended assets, or generated outputs.

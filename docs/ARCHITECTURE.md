@@ -17,7 +17,7 @@ Create packages when their first implementation task needs them, not as empty sc
 | `apps/desktop` | Electron main/preload, React editor, project commands, panels and interaction tools. | Renderer accesses local files only through validated preload operations. |
 | `apps/runtime-demo` | Standalone browser consumer of exported files. | Imports runtime packages; no editor internals or Electron. |
 | `@studio/schema` | Versioned authoring/runtime types, validation and explicit migrations. | No React, Electron, Pixi or filesystem dependency. |
-| `@studio/animation-core` | Local/world transforms, clip sampling, interpolation, mixing and CPU skinning. | Pure data/math; no renderer, DOM, I/O or wall-clock reads. |
+| `@studio/animation-core` | Local/world transforms, clip sampling, interpolation, mixing, marker crossing and CPU skinning. | Pure data/math; no renderer, DOM, I/O or wall-clock reads. |
 | `@studio/compiler` | Validates authoring data and produces runtime data and asset requirements. | No editor/UI dependency; filesystem writes remain a desktop service. |
 | `@studio/runtime-pixi` | Runtime loading, playback orchestration and Pixi rendering of evaluated geometry. | No React, Electron or authoring commands. |
 | `@studio/slot-events` | Later resolved-event mapping and deterministic sequence playback. | Presentation only; no outcome calculation or wagering logic. |
@@ -114,7 +114,9 @@ player.dispose();
 
 The host supplies elapsed seconds; one ticker owns updates. Playback supports speed,
 loops, one-shots and crossfades. Seeking samples the requested pose without advancing
-an independent clock. The exact initial API is frozen with the Gate 1 runtime fixture.
+an independent clock or emitting playback markers. Named clip markers expose callbacks
+while forward playback crosses them; sequence/audio orchestration follows later.
+The exact initial API is frozen with the Gate 1 runtime fixture.
 Rendering must use the same evaluated data whether called by the editor or game.
 
 Later event adapters translate already-resolved game events into visual commands.

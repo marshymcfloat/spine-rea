@@ -41,6 +41,7 @@ Meshes are required in this release, rather than an advanced-animation follow-up
 | Timeline | Clips; position, rotation, scale and opacity keys; loops, scrubbing, playback and copy/paste. |
 | Curves | Linear, hold and editable basic easing. |
 | Player | One-shot/loop playback, pause/resume, stop, speed control and crossfades. |
+| Clip markers | Named markers and runtime callbacks; scrubbing is silent. Multitrack audio/event orchestration follows later. |
 | Editing | Undo/redo for authored project changes, including mesh and weight edits; coalesce one paint stroke into one action. |
 | Export | Versioned runtime JSON, manifest and original PNG textures; exported files do not depend on the editor. |
 | Validation | Deterministic fixtures and automated authoring/export/runtime parity checks. |
