@@ -2,6 +2,7 @@ import { existsSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { _electron as electron, expect, test, type Page } from '@playwright/test';
+import { checkPreview } from './preview-checks';
 
 const repositoryRoot = fileURLToPath(new URL('../', import.meta.url));
 
@@ -52,6 +53,9 @@ test('packaged desktop canvas works offline with an isolated preload boundary', 
 
   try {
     const context = application.context();
+    await context.addInitScript(() => {
+      (window as unknown as { __studioDiagnosticsRequested: object }).__studioDiagnosticsRequested = {};
+    });
     await context.route(/^https?:\/\//, async (route) => {
       externalRequests.push(route.request().url());
       await route.abort('blockedbyclient');
@@ -119,6 +123,8 @@ test('packaged desktop canvas works offline with an isolated preload boundary', 
       appInfo: { name: 'Slot Animation Studio', version: '0.0.1', platform: 'win32' },
       unexpectedArgumentsRejected: true,
     });
+
+    await checkPreview(page);
 
     const zoomValue = page.getByTestId('zoom-value');
     await page.getByRole('button', { name: 'Fit artboard', exact: true }).click();

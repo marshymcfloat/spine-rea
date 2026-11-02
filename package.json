@@ -12,6 +12,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:desktop": "playwright test",
+    "test:runtime": "playwright test --config playwright.runtime.config.ts",
+    "profile:core": "node scripts/profile-core.mjs",
+    "profile:rendering": "node scripts/profile-rendering.mjs",
     "check:harness": "pwsh -NoProfile -File ./scripts/check-harness.ps1"
   },
   "devDependencies": {

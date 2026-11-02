@@ -10,9 +10,9 @@ $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $rootPrefix = $projectRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
 $failures = [Collections.Generic.List[string]]::new()
 $warnings = [Collections.Generic.List[string]]::new()
-$ignoredDirectories = @('.git', '.worktrees', 'generated', '.generated', 'node_modules', 'dist', 'build', 'out', 'coverage', '.cache', '.next', 'artifacts', 'release', 'target')
+$ignoredDirectories = @('.git', '.worktrees', 'generated', '.generated', 'node_modules', 'dist', 'build', 'out', 'coverage', '.cache', '.next', 'artifacts', 'release', 'target', 'test-results', 'playwright-report')
 $requiredFiles = @(
-    'AGENTS.md', 'README.md', 'docs/PRODUCT_PLAN.md', 'docs/ARCHITECTURE.md', 'docs/WORKFLOW.md', 'docs/FORMATS.md', 'docs/PLAYBACK.md', 'docs/PERFORMANCE.md',
+    'AGENTS.md', 'README.md', 'docs/PRODUCT_PLAN.md', 'docs/ARCHITECTURE.md', 'docs/WORKFLOW.md', 'docs/FORMATS.md', 'docs/PLAYBACK.md', 'docs/MESHES.md', 'docs/PERFORMANCE.md',
     '.github/pull_request_template.md', 'scripts/check-harness.ps1', '.github/workflows/harness.yml',
     '.gitignore', '.gitattributes', '.editorconfig'
 )

@@ -12,6 +12,8 @@ interface BrowserReport {
   events: PlaybackMarkerEvent[];
   idleTime: number;
   globals: Record<string, string>;
+  geometry: { rigId: string; drawOrder: string[]; positions: number[][] };
+  reusedGeometryBuffer: boolean;
 }
 
 it('bundles and runs the evaluator/player without external, Node or DOM dependencies', async () => {
@@ -52,8 +54,14 @@ it('bundles and runs the evaluator/player without external, Node or DOM dependen
     const idleTime = player.getState().timeSeconds;
     player.play('clip-praise', { crossfadeSeconds: 0.2 });
     const events = player.update(0.5);
+    const geometryEvaluator = AnimationCore.createGeometryEvaluator(JSON.parse(fixtureText), 'rig-priest');
+    const geometry = geometryEvaluator.createOutput();
+    const firstPositions = geometry.attachments[0].positions;
+    geometryEvaluator.write(player.getPose(), geometry);
     globalThis.report = {
       state: player.getState(), pose: player.getPose(), events, idleTime,
+      geometry: { rigId: geometry.rigId, drawOrder: [...geometry.drawOrder], positions: geometry.attachments.map(item => Array.from(item.positions)) },
+      reusedGeometryBuffer: firstPositions === geometry.attachments[0].positions,
       globals: { document: typeof document, window: typeof window, process: typeof process, require: typeof require, Buffer: typeof Buffer },
     };
   `, context, { timeout: 10_000 });
@@ -66,4 +74,10 @@ it('bundles and runs the evaluator/player without external, Node or DOM dependen
   expect(report.pose.attachments).toHaveLength(9);
   expect(report.pose.bones.every((bone) => Object.values(bone.world).every(Number.isFinite))).toBe(true);
   expect(report.events.map((event) => event.marker.name)).toEqual(['praise_peak']);
+  expect(report.reusedGeometryBuffer).toBe(true);
+  expect(report.geometry.rigId).toBe('rig-priest');
+  expect(report.geometry.drawOrder).toEqual(report.pose.drawOrder);
+  expect(report.geometry.positions).toHaveLength(9);
+  expect(report.geometry.positions[8]).toHaveLength(18);
+  expect(report.geometry.positions.flat().every(Number.isFinite)).toBe(true);
 }, 15_000);
