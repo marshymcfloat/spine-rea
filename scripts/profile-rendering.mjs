@@ -128,11 +128,14 @@ async function endTrace(session, file) {
 
 const report = { label, host, baseline, stressGridSide, sourceCommit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: buildRoot, encoding: 'utf8' }).trim(),
   uncommittedChanges: Boolean(execFileSync('git', ['status', '--porcelain'], { cwd: buildRoot, encoding: 'utf8' }).trim()),
-  capturedAt: new Date().toISOString(), environment: { platform: process.platform, osRelease: release(), node: process.version, cpu: cpus()[0]?.model, ramBytes: totalmem(), powerMode: 'record separately', displayRefreshHz: 'record separately' },
+  capturedAt: new Date().toISOString(), environment: { platform: process.platform, osRelease: release(), node: process.version, cpu: cpus()[0]?.model, ramBytes: totalmem(), powerMode: null, displayRefreshHz: null },
   methodology: { seconds, runs, warmupSeconds: baseline ? 2 : 5, build: 'packaged Electron / Vite production browser build',
     instrumentation: 'Opt-in phase timings, WebGL draw-call wrapper, long-task observer and CDP trace. Timing overhead is included; render submission is not GPU completion. Idle is not an FPS measurement.' }, runs: [], errors };
 try {
   report.environment.windows = JSON.parse(execFileSync('pwsh', ['-NoProfile', '-Command', '[pscustomobject]@{OS=(Get-CimInstance Win32_OperatingSystem | Select-Object Caption,Version,BuildNumber);GPU=(Get-CimInstance Win32_VideoController | Select-Object Name,DriverVersion,CurrentRefreshRate);Power=(powercfg /getactivescheme)} | ConvertTo-Json -Depth 4'], { encoding: 'utf8' }));
+  report.environment.powerMode = report.environment.windows.Power;
+  const gpu = report.environment.windows.GPU;
+  report.environment.displayRefreshHz = Array.isArray(gpu) ? gpu.map((device) => device.CurrentRefreshRate) : gpu?.CurrentRefreshRate ?? null;
 } catch (error) { report.environment.metadataError = String(error); }
 
 try {
